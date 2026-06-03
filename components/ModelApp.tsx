@@ -182,7 +182,7 @@ export function ModelApp() {
                   sectorId={sectorId}
                   neePct={target * 100}
                   coPct={stat.alphaCO * 100}
-                  taxOn={scenario.tau > 1e-9}
+                  taxOn={scenario.regime === 'tax' && scenario.tau > 1e-9}
                 />
               )}
               <p className={styles.unitsNote}>
@@ -211,7 +211,8 @@ export function ModelApp() {
                 demand its layoffs destroy — so for the firm, automating always pays, right up to
                 the market level (left). But every firm drains the <em>same</em> pool of demand, so
                 each actually loses <strong>N×</strong> more than it reckoned with (right). Add it
-                up and the savings stop covering the losses — that&apos;s the overshoot.
+                up and the extra savings no longer cover the extra losses — so total profit slips
+                below the optimum. That&apos;s the overshoot.
               </p>
             </>
           ) : (
@@ -244,9 +245,9 @@ export function ModelApp() {
                 amount — it peaks at the optimum. The blue line is <em>one</em> firm&apos;s profit
                 if its rivals hold there: it keeps climbing past the optimum, so each firm is
                 individually tempted to over-automate. When they all give in, they overshoot — and
-                the dark line shows they end up with <em>less</em>. (UBI or a profit tax shift these
-                curves up or down but don&apos;t move where they peak — which is why they don&apos;t
-                change automation.)
+                the dark line shows they end up with <em>less</em>. (A profit tax scales these
+                curves toward the 100 line and UBI leaves them untouched — but neither moves where
+                they peak, which is why neither changes automation.)
               </p>
             </>
           )}
