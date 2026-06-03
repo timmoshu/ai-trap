@@ -5,6 +5,8 @@ import Link from 'next/link';
 import {
   computeStatic,
   effectiveParams,
+  realizedAlpha,
+  alphaNE,
   simulateToTarget,
   steadyMetrics,
   DYNAMIC_DEFAULTS,
@@ -12,9 +14,8 @@ import {
 import { useScenario } from '@/lib/useScenario';
 import { ParameterPanel } from './ParameterPanel';
 import { Toggle } from './Toggle';
-import { TaxControl } from './TaxControl';
 import { ViewToggle } from './ViewToggle';
-import { PolicyPanel, policyAlpha, type PolicyId } from './PolicyPanel';
+import { PolicyControls } from './PolicyControls';
 import { Footer } from './Footer';
 import { Slider } from './Slider';
 import { NarrativePanel } from './NarrativePanel';
@@ -37,40 +38,31 @@ export function ModelApp() {
   const [copied, setCopied] = useState(false);
   const [makeReal, setMakeReal] = useState(false);
   const [sectorId, setSectorId] = useState(DEFAULT_SECTOR.id);
-  const [policy, setPolicy] = useState<PolicyId>('none');
 
   const eff = useMemo(() => effectiveParams(scenario), [scenario]);
   const stat = useMemo(() => computeStatic(eff), [eff]);
 
-  // The realized automation under the active intervention. Tax and policies are mutually exclusive:
-  // with no policy we follow the (possibly taxed) free-market level; a chosen policy sets its own
-  // target. UBI additionally lifts autonomous demand A — visible in spending, never in automation.
-  const policyParams = useMemo(
-    () => (policy === 'ubi' ? { ...eff, A: eff.A + 5 } : eff),
-    [eff, policy],
-  );
-  const target = useMemo(
-    () => (policy === 'none' ? stat.alphaNE : policyAlpha(eff, policy)),
-    [policy, eff, stat.alphaNE],
-  );
+  // The automation the model settles at under the active policy regime (free / tax / equity /
+  // bargaining). The level levers (A = UBI, t = capital tax) live in `eff` and shape demand/profit
+  // but never this target — that invariance IS the model's thesis.
+  const target = useMemo(() => realizedAlpha(scenario), [scenario]);
+  // Structural free-market automation, for the big-picture marker (independent of policy/tax).
+  const alphaNEfree = useMemo(() => alphaNE({ ...eff, tau: 0 }), [eff]);
 
-  // Realized over-automation gap: closes to ~0 under the tax or bargaining, negative when η > 100%.
+  // Realized over-automation gap: closes to ~0 under the tax or full bargaining, negative when η > 100%.
   const gap = target - stat.alphaCO;
   const ws = gapState(gap);
 
   const path = useMemo(
     () =>
-      simulateToTarget(policyParams, target, {
+      simulateToTarget(eff, target, {
         adjustmentSpeed: scenario.adjustmentSpeed,
         reabsorptionRate: scenario.reabsorptionRate,
         periods: DYNAMIC_DEFAULTS.periods,
       }),
-    [policyParams, target, scenario.adjustmentSpeed, scenario.reabsorptionRate],
+    [eff, target, scenario.adjustmentSpeed, scenario.reabsorptionRate],
   );
-  const optimum = useMemo(
-    () => steadyMetrics(policyParams, stat.alphaCO),
-    [policyParams, stat.alphaCO],
-  );
+  const optimum = useMemo(() => steadyMetrics(eff, stat.alphaCO), [eff, stat.alphaCO]);
   const settled = path[path.length - 1];
 
   // Debounced screen-reader summary (announces the settled result once, not on every drag tick).
@@ -133,7 +125,7 @@ export function ModelApp() {
           <div className={styles.readout}>
             <div className={styles.metric}>
               <span className={styles.mLabel}>
-                {policy === 'none' ? 'Market automation' : 'Automation'}
+                {scenario.regime === 'free' ? 'Market automation' : 'Automation'}
               </span>
               <span className={`${styles.val} tabular`}>{(target * 100).toFixed(0)}%</span>
             </div>
@@ -228,7 +220,7 @@ export function ModelApp() {
               <OvershootHill
                 params={eff}
                 markers={{
-                  alphaNE: stat.alphaNE,
+                  alphaNE: alphaNEfree,
                   alphaCO: stat.alphaCO,
                   alphaSP: stat.alphaSP,
                   showSP: scenario.mu > 1e-3,
@@ -265,7 +257,7 @@ export function ModelApp() {
           <ParameterPanel scenario={scenario} update={update} />
 
           <section className={panel.panel}>
-            <h2 className={panel.title}>Levers &amp; off-switches</h2>
+            <h2 className={panel.title}>Assumption you can switch off</h2>
             <Toggle
               id="toggle-wage"
               label="Sticky wages (pay can't fall)"
@@ -277,15 +269,9 @@ export function ModelApp() {
               checked={scenario.wageRigid}
               onChange={(v) => update({ wageRigid: v })}
             />
-            <TaxControl
-              tau={scenario.tau}
-              optimumTax={stat.tauStarExact}
-              onChange={(v) => {
-                update({ tau: v });
-                if (v > 1e-9) setPolicy('none');
-              }}
-            />
           </section>
+
+          <PolicyControls scenario={scenario} update={update} optimumTax={stat.tauStarExact} />
 
           <details className={styles.advanced}>
             <summary>Advanced — speed of the transition (illustrative)</summary>
@@ -320,17 +306,6 @@ export function ModelApp() {
           </details>
         </aside>
       </div>
-
-      <section className={`${panel.panel} ${styles.fullRow}`}>
-        <PolicyPanel
-          base={{ ...eff, tau: 0 }}
-          active={policy}
-          onSelect={(p) => {
-            setPolicy(p);
-            if (p !== 'none') update({ tau: 0 });
-          }}
-        />
-      </section>
 
       <Footer />
 

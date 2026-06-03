@@ -27,8 +27,12 @@ export interface DynamicConfig {
  * the stylized profit *level* is negative, and on the same "vs. before (100)" footing as demand.
  * Automation lifts profit above 100; the free market overshoots and ends up below the optimum line.
  */
-const profitIndexVsBase = (p: Params, a: number, baseDemand: number): number =>
-  100 + ((aggregateProfit(p, a) - aggregateProfit(p, 0)) / baseDemand) * 100;
+const profitIndexVsBase = (p: Params, a: number, baseDemand: number): number => {
+  // A capital/profit tax t scales the profit CHANGE by (1-t). It cannot touch the automation
+  // decision (it cancels from the FOC), so it only ever appears here, in the display.
+  const afterTax = 1 - (p.t ?? 0);
+  return 100 + (afterTax * (aggregateProfit(p, a) - aggregateProfit(p, 0)) * 100) / baseDemand;
+};
 
 /** Each firm's cost to get the work done, indexed to before automation = 100 (baseline cost = w·L). */
 const costIndexVsBase = (p: Params, a: number): number =>

@@ -33,6 +33,11 @@ describe('Gate-0 comparative statics', () => {
     expect(approx(alphaNE({ ...base, A: base.A + 5 }), alphaNE(base))).toBe(true);
   });
 
+  it('the capital/profit tax (t) leaves Nash automation unchanged (it only scales profit)', () => {
+    expect(approx(alphaNE({ ...base, t: 0.5 }), alphaNE(base))).toBe(true);
+    expect(approx(alphaNE({ ...base, t: 0.9 }), alphaNE(base))).toBe(true);
+  });
+
   it('more competition widens the wedge; monopoly (N=1) is efficient', () => {
     expect(approx(wedge({ ...base, N: 1 }), 0)).toBe(true);
     expect(wedge({ ...base, N: 20 })).toBeGreaterThan(wedge(base));

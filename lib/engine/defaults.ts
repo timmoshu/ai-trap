@@ -16,6 +16,7 @@ export const DEFAULTS: Params = {
   L: 1,
   mu: 0,
   tau: 0,
+  t: 0,
 };
 
 export interface ParamMeta {

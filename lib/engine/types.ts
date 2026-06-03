@@ -24,6 +24,12 @@ export interface Params {
   mu: number;
   /** per-task automation tax (tau). The Pigouvian lever; defaults OFF (0). */
   tau: number;
+  /**
+   * capital / profit tax t in [0,1) — scales DISPLAYED profit by (1-t). Optional; treated as 0
+   * when absent. It must NEVER enter the automation FOC (it cancels), so the alpha* functions
+   * deliberately ignore it; only the profit-display helpers read it.
+   */
+  t?: number;
 }
 
 export interface StaticResult {

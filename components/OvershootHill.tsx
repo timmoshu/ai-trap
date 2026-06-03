@@ -47,7 +47,8 @@ export function OvershootHill({
     const baseDemand = params.A + params.lambda * params.w * params.L * params.N;
     const scale = baseDemand / params.N; // per-firm baseline revenue (always positive)
     const pi0 = profitPerFirm(params, 0);
-    const idx = (profit: number) => 100 + ((profit - pi0) / scale) * 100;
+    const afterTax = 1 - (params.t ?? 0); // capital/profit tax scales the displayed profit change
+    const idx = (profit: number) => 100 + ((afterTax * (profit - pi0)) / scale) * 100;
     return {
       xs,
       ysAll: xs.map((a) => idx(profitPerFirm(params, a))),
