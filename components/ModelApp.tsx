@@ -191,6 +191,14 @@ export function ModelApp() {
                 at &ldquo;full employment&rdquo;). What matters is the <em>gap</em> between the
                 lines, not the level. <Link href="/method">What the numbers mean →</Link>
               </p>
+              {scenario.regime === 'tax' && scenario.tau > 1e-9 && (
+                <p className={styles.unitsNote}>
+                  With the automation tax on, &ldquo;corporate profits&rdquo; shows{' '}
+                  <strong>combined</strong> profit — the tax is rebated to the economy. Firms{' '}
+                  <em>remit</em> it, so their own take-home is lower; the recovery you see is the
+                  economy&apos;s combined gain, which is the level the tax targets.
+                </p>
+              )}
               <p className={styles.caption}>
                 The cascade over time: automation rises, workers are displaced, consumer spending
                 dips, and profits overshoot — settling <em>below</em> the efficient optimum
