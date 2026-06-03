@@ -96,6 +96,18 @@
   align-items: start;
 }
 
+/* On wide screens each column scrolls within the viewport (sleek scrollbars are global). */
+@media (min-width: 881px) {
+  .stage,
+  .controls {
+    position: sticky;
+    top: var(--s4);
+    max-height: calc(100vh - var(--s7));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+}
+
 .stage {
   background: var(--surface);
   border: 1px solid var(--border);

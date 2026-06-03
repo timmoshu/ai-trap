@@ -271,8 +271,8 @@ export function ModelApp() {
               label="Sticky wages (pay can't fall)"
               description={
                 scenario.wageRigid
-                  ? "On: pay can't fall, so each layoff is pure lost spending for everyone — that demand shortfall is what creates the trap. Turn it off to see the gap vanish."
-                  : 'Off: pay adjusts so total spending never drops (the same as 100% of workers re-absorbed). With no demand shortfall, the over-automation gap above falls to zero — that is why the trap needs sticky wages.'
+                  ? "On: pay can't fall, so a laid-off worker can't re-price into a new job — they stay unemployed, and their lost wages are lost spending for everyone. That demand hole is the trap. Turn it off to see it vanish."
+                  : 'Off: if pay can fall, displaced workers accept lower pay and get re-hired — the labor market clears, so they keep earning and spending and there is no demand hole. The trap is fundamentally a sticky-wage problem.'
               }
               checked={scenario.wageRigid}
               onChange={(v) => update({ wageRigid: v })}
