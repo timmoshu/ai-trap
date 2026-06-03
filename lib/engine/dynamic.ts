@@ -60,12 +60,14 @@ export function simulateToTarget(
 
   for (let t = 0; t < cfg.periods; t++) {
     const rehired = p.eta * alpha * g; // share of the workforce re-hired so far
-    const netDisplaced = Math.max(0, alpha - rehired);
+    // Net displacement can go negative when eta > 1 (re-hired at better pay -> demand rises). The
+    // jobs count can't be negative, but the demand CHANGE can — so they clamp differently.
+    const netDisplaced = alpha - rehired;
     const demand = p.A + p.lambda * p.w * p.L * p.N * (1 - alpha + rehired);
     pts.push({
       t,
       automation: alpha * 100,
-      unemployment: netDisplaced * 100,
+      unemployment: Math.max(0, netDisplaced) * 100,
       demandIndex: (demand / baseDemand) * 100,
       profitIndex: profitIndexVsBase(p, alpha),
       costIndex: costIndexVsBase(p, alpha),
@@ -86,12 +88,12 @@ export function simulate(p: Params, cfg: DynamicConfig = DYNAMIC_DEFAULTS): Dyna
 /** Steady-state drivers at a given automation level — the invariant target and the reference line. */
 export function steadyMetrics(p: Params, target: number): DynamicPoint {
   const baseDemand = p.A + p.lambda * p.w * p.L * p.N;
-  const netDisplaced = Math.max(0, target * (1 - p.eta));
+  const netDisplaced = target * (1 - p.eta); // can be negative when eta > 1 (demand rises)
   const demand = p.A + p.lambda * p.w * p.L * p.N * (1 - (1 - p.eta) * target);
   return {
     t: -1,
     automation: target * 100,
-    unemployment: netDisplaced * 100,
+    unemployment: Math.max(0, netDisplaced) * 100,
     demandIndex: (demand / baseDemand) * 100,
     profitIndex: profitIndexVsBase(p, target),
     costIndex: costIndexVsBase(p, target),
