@@ -30,6 +30,14 @@ export interface DynamicConfig {
 const profitIndexVsBase = (p: Params, a: number, baseDemand: number): number =>
   100 + ((aggregateProfit(p, a) - aggregateProfit(p, 0)) / baseDemand) * 100;
 
+/** Each firm's cost to get the work done, indexed to before automation = 100 (baseline cost = w·L). */
+const costIndexVsBase = (p: Params, a: number): number =>
+  ((p.w - a * (p.w - p.c) + (p.k / 2) * a * a) / p.w) * 100;
+
+/** Cost the firms save vs. before automation, as points of baseline revenue (the automation upside). */
+const costSavedVsBase = (p: Params, a: number, baseDemand: number): number =>
+  ((p.N * p.L * (a * (p.w - p.c) - (p.k / 2) * a * a)) / baseDemand) * 100;
+
 /** Simulate the cascade as firms move automation toward `target`. */
 export function simulateToTarget(
   p: Params,
@@ -51,6 +59,8 @@ export function simulateToTarget(
       unemployment: Math.max(0, alpha - rehired) * 100,
       demandIndex: (demand / baseDemand) * 100,
       profitIndex: profitIndexVsBase(p, alpha, baseDemand),
+      costIndex: costIndexVsBase(p, alpha),
+      costSaved: costSavedVsBase(p, alpha, baseDemand),
     });
     alpha += cfg.adjustmentSpeed * (target - alpha);
     g += cfg.reabsorptionRate * (1 - g);
@@ -73,5 +83,7 @@ export function steadyMetrics(p: Params, target: number): DynamicPoint {
     unemployment: Math.max(0, target * (1 - p.eta)) * 100,
     demandIndex: (demand / baseDemand) * 100,
     profitIndex: profitIndexVsBase(p, target, baseDemand),
+    costIndex: costIndexVsBase(p, target),
+    costSaved: costSavedVsBase(p, target, baseDemand),
   };
 }

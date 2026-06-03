@@ -23,6 +23,7 @@ import styles from './ModelApp.module.css';
 import panel from './Panel.module.css';
 
 const DriverCharts = dynamic(() => import('./DriverCharts'), { ssr: false });
+const LinkagePanels = dynamic(() => import('./LinkagePanels'), { ssr: false });
 const OvershootHill = dynamic(() => import('./OvershootHill'), { ssr: false });
 
 function gapState(gap: number): { label: string; cls: string } {
@@ -203,6 +204,23 @@ export function ModelApp() {
                 dips, and profits overshoot — settling <em>below</em> the efficient optimum
                 (dashed). Turn on the tax and watch the lines move back. Destination faithful, path
                 illustrative.
+              </p>
+
+              <h3 className={styles.linkHeading}>Under the hood — how the pieces connect</h3>
+              <p className={styles.linkIntro}>
+                Two links the cascade hides: <em>why</em> a firm automates, and how the upside and
+                the downside <em>net out</em> into profit.
+              </p>
+              <LinkagePanels
+                data={path}
+                optimum={optimum}
+                sector={makeReal ? getSector(sectorId) : undefined}
+              />
+              <p className={styles.caption}>
+                Each firm automates because it cuts their cost (left). But automation also destroys
+                demand, so they also lose revenue (right). Profit is the gap between the two —
+                widest at the optimum, and shrinking as firms over-automate. That gap never depends
+                on the demand <em>level</em>, which is why UBI or a profit tax don&apos;t move it.
               </p>
             </>
           ) : (

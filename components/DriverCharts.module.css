@@ -78,6 +78,26 @@
   width: 100%;
 }
 
+.legendRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s3);
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.legendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.legendItem i {
+  width: 10px;
+  height: 3px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
 @media (max-width: 680px) {
   .grid {
     grid-template-columns: 1fr;

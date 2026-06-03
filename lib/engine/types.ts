@@ -47,6 +47,10 @@ export interface DynamicPoint {
   unemployment: number;
   /** consumer spending, indexed to the pre-automation baseline = 100. */
   demandIndex: number;
-  /** corporate profit as % of the best achievable (the efficient optimum = 100). */
+  /** corporate profit, indexed to the pre-automation baseline = 100 (points of baseline revenue). */
   profitIndex: number;
+  /** each firm's cost to get the work done, indexed to before automation = 100 (falls as AI replaces wages). */
+  costIndex: number;
+  /** cost the firms save vs. before automation, in points of baseline revenue (the automation upside). */
+  costSaved: number;
 }

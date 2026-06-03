@@ -206,6 +206,21 @@
   font-style: italic;
 }
 
+.linkHeading {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: var(--s5) 0 var(--s1);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--border);
+}
+.linkIntro {
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin: 0 0 var(--s4);
+}
+
 .controls {
   display: flex;
   flex-direction: column;
