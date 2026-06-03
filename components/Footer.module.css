@@ -1,0 +1,29 @@
+.footer {
+  margin-top: var(--s8);
+  padding-top: var(--s5);
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s4);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+.line {
+  max-width: 62ch;
+  line-height: 1.6;
+}
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--s4);
+  white-space: nowrap;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+}

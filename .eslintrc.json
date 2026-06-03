@@ -1,0 +1,4 @@
+{
+  "extends": "next/core-web-vitals",
+  "ignorePatterns": ["_bmad/**", "_bmad-output/**", ".claude/**", "engine/**", "node_modules/**"]
+}

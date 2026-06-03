@@ -1,0 +1,199 @@
+/* Shared styling for toggles, segmented controls, the tax control, and the policy panel. */
+
+.group {
+  padding: var(--s2) 0;
+}
+.groupTitle {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-3);
+  font-weight: 600;
+  margin-bottom: var(--s2);
+}
+.muted {
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+/* Toggle (switch) */
+.toggleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--s3);
+  padding: var(--s3) 0;
+}
+.toggle {
+  flex: none;
+  width: 44px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  position: relative;
+  cursor: pointer;
+  transition:
+    background var(--motion) var(--ease),
+    border-color var(--motion) var(--ease);
+  margin-top: 2px;
+}
+/* ~44px invisible hit area for comfortable touch (WCAG 2.5.8) */
+.toggle::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
+}
+.toggleOn {
+  background: var(--fix-soft);
+  border-color: var(--fix);
+}
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  transition: transform var(--motion) var(--ease);
+}
+.toggleOn .knob {
+  transform: translateX(20px);
+  border-color: var(--fix);
+}
+.toggleLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.toggleDesc {
+  font-size: 12px;
+  color: var(--ink-3);
+  line-height: 1.4;
+}
+
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--surface);
+}
+.segBtn {
+  font: inherit;
+  font-size: 13px;
+  padding: var(--s2) var(--s4);
+  background: transparent;
+  border: none;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.segActive {
+  background: var(--ink);
+  color: var(--surface);
+}
+
+/* Tax control */
+.taxRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s2);
+}
+.applyBtn {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--fix);
+  color: var(--fix);
+  background: var(--fix-soft);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+}
+.applyBtn:hover {
+  filter: brightness(0.97);
+}
+.clearBtn {
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+}
+
+/* Policy panel */
+.policy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+}
+.policyRow {
+  display: grid;
+  grid-template-columns: 168px 1fr 56px;
+  align-items: center;
+  gap: var(--s3);
+  font-size: 13px;
+}
+.policyName {
+  color: var(--ink);
+}
+.policyName small {
+  display: block;
+  color: var(--ink-3);
+  font-size: 11px;
+}
+.bar {
+  position: relative;
+  height: 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.barFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: 999px;
+}
+.barTrap {
+  background: var(--trap);
+}
+.barFix {
+  background: var(--fix);
+}
+.target {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 2px;
+  background: var(--ink);
+}
+.policyVal {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.caveat {
+  font-size: 12.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+  margin: var(--s3) 0 0;
+  padding-top: var(--s3);
+  border-top: 1px solid var(--border);
+}
+
+@media (max-width: 768px) {
+  .segBtn {
+    min-height: 44px;
+    padding: var(--s2) var(--s5);
+  }
+}

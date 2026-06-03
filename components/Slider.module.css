@@ -1,0 +1,116 @@
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  padding: var(--s3) 0;
+  border-bottom: 1px solid var(--border);
+}
+.row:last-child {
+  border-bottom: none;
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s2);
+  font-size: 14px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.symbol {
+  font-family: var(--font-mono);
+  font-style: italic;
+  color: var(--ink-2);
+  min-width: 1.6em;
+}
+
+.tag {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--ink-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-inset);
+  padding: 0 4px;
+}
+
+.value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  outline-offset: 4px;
+  cursor: pointer;
+}
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  box-shadow: 0 1px 2px rgba(27, 27, 25, 0.15);
+  cursor: grab;
+  transition: border-color var(--motion-fast) var(--ease);
+}
+.range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  background: var(--accent-soft);
+}
+.range::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 2px solid var(--accent);
+  cursor: grab;
+}
+
+.cite {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--ink-3);
+}
+.hint {
+  color: var(--ink-2);
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.disabledRow {
+  opacity: 0.45;
+}
+.disabledRow .range {
+  cursor: not-allowed;
+}
+
+/* larger thumbs for touch (WCAG 2.5.8) */
+@media (pointer: coarse) {
+  .range::-webkit-slider-thumb {
+    width: 24px;
+    height: 24px;
+  }
+  .range::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+  }
+}

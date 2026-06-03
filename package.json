@@ -1,0 +1,36 @@
+{
+  "name": "the-ai-trap",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The AI Trap — a faithful, transparent, client-side simulator of the AI Layoff Trap (Falk & Tsoukalas, arXiv:2603.20617).",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "format:check": "prettier --check \"{app,lib,components,styles,scripts}/**/*.{ts,tsx,css,mjs}\"",
+    "format": "prettier --write \"{app,lib,components,styles,scripts}/**/*.{ts,tsx,css,mjs}\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "check:banned": "node scripts/check-banned-words.mjs",
+    "fixture": "python3 engine/emit_fixture.py",
+    "ci": "npm run check:banned && npm run typecheck && npm run lint && npm run format:check && npm run test"
+  },
+  "dependencies": {
+    "next": "14.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "uplot": "1.6.31"
+  },
+  "devDependencies": {
+    "@types/node": "20.14.10",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2",
+    "prettier": "3.3.3",
+    "typescript": "5.5.3",
+    "vitest": "2.1.8"
+  }
+}

@@ -1,0 +1,156 @@
+/*
+ * The AI Trap — global design tokens.
+ * Visual direction: "Calm Instrument" (UX spec). A scientific instrument you'd believe.
+ * Color semantics are law: --trap marks the problem; --fix marks resolution. Never decorative.
+ */
+
+:root {
+  /* Neutrals — warm grey instrument paper, not clinical white */
+  --bg: #fafaf7;
+  --surface: #ffffff;
+  --surface-2: #f4f3ee;
+  --border: #e7e6e0;
+  --ink: #1b1b19;
+  --ink-2: #5b5b54;
+  --ink-3: #6e6e66;
+
+  /* Signal — reserved for THE TRAP (the problem state) */
+  --trap: #bd4b3b;
+  --trap-soft: #f3dcd6;
+
+  /* Resolved — reserved for THE FIX (optimum reached) */
+  --fix: #2f6f4f;
+  --fix-soft: #dcebe2;
+
+  /* Interactive — calm, never competing with the signal */
+  --accent: #2e6e8e;
+  --accent-soft: #dcebf1;
+  --focus: #2e6e8e;
+
+  /* Chart series — muted; line style also encodes identity (colorblind-safe) */
+  --series-employment: #34342f;
+  --series-demand: #3b6ea5;
+  --series-output: #9a7b3f;
+  --grid: #eeede8;
+
+  /* Type — IBM Plex (engineered/scientific) + Newsreader (editorial), self-hosted via next/font */
+  --font-sans: var(--font-sans-loaded), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: var(--font-serif-loaded), Georgia, 'Times New Roman', serif;
+  --font-mono: var(--font-mono-loaded), ui-monospace, 'SFMono-Regular', Menlo, monospace;
+
+  /* Space (4px base) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 24px;
+  --s6: 32px;
+  --s7: 48px;
+  --s8: 64px;
+
+  /* Shape / elevation */
+  --radius: 4px;
+  --radius-inset: 2px;
+  --shadow-card: 0 1px 2px rgba(27, 27, 25, 0.04), 0 8px 24px rgba(27, 27, 25, 0.06);
+
+  /* Motion */
+  --motion-fast: 120ms;
+  --motion: 240ms;
+  --motion-slow: 400ms;
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg);
+  /* instrument-paper atmosphere: a barely-there engineering grid (hairline elevation, spec §6.3) */
+  background-image: linear-gradient(rgba(27, 27, 25, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(27, 27, 25, 0.022) 1px, transparent 1px);
+  background-size:
+    44px 44px,
+    44px 44px;
+  background-position:
+    -1px -1px,
+    -1px -1px;
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-variant-numeric: tabular-nums;
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+h1,
+h2,
+h3 {
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Visible focus on every interactive element (NFR-3) */
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-inset);
+}
+
+/* Tabular numerals for all readouts so digits don't jitter while animating */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Screen-reader-only utility (NFR-3) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Calm staggered page-load reveal (suppressed under reduced-motion by the rule below) */
+@keyframes reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.reveal {
+  animation: reveal 540ms var(--ease) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
