@@ -73,14 +73,14 @@ export function LinkagePanels({
       sub: 'the gap between them is the profit change',
       lines: [
         { name: 'cost saved', color: INK, vals: data.map((d) => d.costSaved) },
-        { name: 'demand lost', color: ACCENT, vals: data.map((d) => 100 - d.demandIndex) },
+        { name: 'demand lost', color: ACCENT, vals: data.map((d) => d.demandLost) },
       ],
       ref: null,
       zero: true,
-      aria: `Cost saved versus demand lost, in points of baseline revenue. The cost saving (${Math.round(
+      aria: `Cost saved versus demand lost, in points of the baseline wage bill. The cost saving (${Math.round(
         data[data.length - 1].costSaved,
       )}) minus the demand lost (${Math.round(
-        100 - data[data.length - 1].demandIndex,
+        data[data.length - 1].demandLost,
       )}) is the profit change — positive but shrinking as firms over-automate past the optimum.`,
     },
   ];

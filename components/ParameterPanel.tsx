@@ -1,5 +1,5 @@
 'use client';
-import { PARAM_META, DEFAULTS, type Scenario } from '@/lib/engine';
+import { PARAM_META, DEFAULT_SCENARIO, type Scenario } from '@/lib/engine';
 import { Slider } from './Slider';
 import styles from './Panel.module.css';
 
@@ -19,19 +19,9 @@ export function ParameterPanel({
   update: (patch: Partial<Scenario>) => void;
 }) {
   const structural = PARAM_META.filter((m) => m.key !== 'tau');
-  // Restore the paper's illustrative baseline (model params + assumptions); leave the view and
-  // the illustrative animation speeds as the user set them.
-  const resetToPaper = () =>
-    update({
-      N: DEFAULTS.N,
-      c: DEFAULTS.c,
-      lambda: DEFAULTS.lambda,
-      eta: DEFAULTS.eta,
-      k: DEFAULTS.k,
-      mu: DEFAULTS.mu,
-      tau: DEFAULTS.tau,
-      wageRigid: true,
-    });
+  // Restore the paper's illustrative baseline — every model param, policy, and animation speed —
+  // keeping only which view the user is looking at.
+  const resetToPaper = () => update({ ...DEFAULT_SCENARIO, view: scenario.view });
   return (
     <section className={styles.panel} aria-label="Model parameters">
       <div className={styles.titleRow}>

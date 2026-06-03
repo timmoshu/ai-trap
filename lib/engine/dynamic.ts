@@ -22,25 +22,29 @@ export interface DynamicConfig {
 }
 
 /**
- * Profit indexed to BEFORE automation (= 100). We express the change in aggregate profit as points
- * of baseline revenue (the demand at zero automation, which is always positive) — robust even where
- * the stylized profit *level* is negative, and on the same "vs. before (100)" footing as demand.
- * Automation lifts profit above 100; the free market overshoots and ends up below the optimum line.
+ * The profit-side quantities are indexed to the baseline WAGE BILL (w·L·N) rather than baseline
+ * demand. That base is independent of A, so raising UBI (A) does NOT spuriously move profit, cost
+ * saved, or demand lost — which is correct: the automation-driven *change* in profit cancels A. It
+ * also stays robust where the stylized profit *level* is negative (only changes are shown).
  */
-const profitIndexVsBase = (p: Params, a: number, baseDemand: number): number => {
-  // A capital/profit tax t scales the profit CHANGE by (1-t). It cannot touch the automation
-  // decision (it cancels from the FOC), so it only ever appears here, in the display.
+const wageBill = (p: Params): number => p.w * p.L * p.N;
+
+/** Profit indexed to before automation (= 100). The capital tax t scales the CHANGE by (1-t). */
+const profitIndexVsBase = (p: Params, a: number): number => {
   const afterTax = 1 - (p.t ?? 0);
-  return 100 + (afterTax * (aggregateProfit(p, a) - aggregateProfit(p, 0)) * 100) / baseDemand;
+  return 100 + (afterTax * (aggregateProfit(p, a) - aggregateProfit(p, 0)) * 100) / wageBill(p);
 };
 
 /** Each firm's cost to get the work done, indexed to before automation = 100 (baseline cost = w·L). */
 const costIndexVsBase = (p: Params, a: number): number =>
   ((p.w - a * (p.w - p.c) + (p.k / 2) * a * a) / p.w) * 100;
 
-/** Cost the firms save vs. before automation, as points of baseline revenue (the automation upside). */
-const costSavedVsBase = (p: Params, a: number, baseDemand: number): number =>
-  ((p.N * p.L * (a * (p.w - p.c) - (p.k / 2) * a * a)) / baseDemand) * 100;
+/** Cost the firms save vs. before automation, as points of the baseline wage bill (the upside). */
+const costSavedVsBase = (p: Params, a: number): number =>
+  ((p.N * p.L * (a * (p.w - p.c) - (p.k / 2) * a * a)) / wageBill(p)) * 100;
+
+/** Demand the layoffs remove, as points of the baseline wage bill (the downside). A-independent. */
+const demandLostVsBase = (p: Params, netDisplaced: number): number => p.lambda * netDisplaced * 100;
 
 /** Simulate the cascade as firms move automation toward `target`. */
 export function simulateToTarget(
@@ -56,15 +60,17 @@ export function simulateToTarget(
 
   for (let t = 0; t < cfg.periods; t++) {
     const rehired = p.eta * alpha * g; // share of the workforce re-hired so far
+    const netDisplaced = Math.max(0, alpha - rehired);
     const demand = p.A + p.lambda * p.w * p.L * p.N * (1 - alpha + rehired);
     pts.push({
       t,
       automation: alpha * 100,
-      unemployment: Math.max(0, alpha - rehired) * 100,
+      unemployment: netDisplaced * 100,
       demandIndex: (demand / baseDemand) * 100,
-      profitIndex: profitIndexVsBase(p, alpha, baseDemand),
+      profitIndex: profitIndexVsBase(p, alpha),
       costIndex: costIndexVsBase(p, alpha),
-      costSaved: costSavedVsBase(p, alpha, baseDemand),
+      costSaved: costSavedVsBase(p, alpha),
+      demandLost: demandLostVsBase(p, netDisplaced),
     });
     alpha += cfg.adjustmentSpeed * (target - alpha);
     g += cfg.reabsorptionRate * (1 - g);
@@ -80,14 +86,16 @@ export function simulate(p: Params, cfg: DynamicConfig = DYNAMIC_DEFAULTS): Dyna
 /** Steady-state drivers at a given automation level — the invariant target and the reference line. */
 export function steadyMetrics(p: Params, target: number): DynamicPoint {
   const baseDemand = p.A + p.lambda * p.w * p.L * p.N;
+  const netDisplaced = Math.max(0, target * (1 - p.eta));
   const demand = p.A + p.lambda * p.w * p.L * p.N * (1 - (1 - p.eta) * target);
   return {
     t: -1,
     automation: target * 100,
-    unemployment: Math.max(0, target * (1 - p.eta)) * 100,
+    unemployment: netDisplaced * 100,
     demandIndex: (demand / baseDemand) * 100,
-    profitIndex: profitIndexVsBase(p, target, baseDemand),
+    profitIndex: profitIndexVsBase(p, target),
     costIndex: costIndexVsBase(p, target),
-    costSaved: costSavedVsBase(p, target, baseDemand),
+    costSaved: costSavedVsBase(p, target),
+    demandLost: demandLostVsBase(p, netDisplaced),
   };
 }

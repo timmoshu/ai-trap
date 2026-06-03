@@ -57,6 +57,8 @@ export interface DynamicPoint {
   profitIndex: number;
   /** each firm's cost to get the work done, indexed to before automation = 100 (falls as AI replaces wages). */
   costIndex: number;
-  /** cost the firms save vs. before automation, in points of baseline revenue (the automation upside). */
+  /** cost the firms save vs. before automation, in points of the baseline wage bill (the automation upside). */
   costSaved: number;
+  /** demand the layoffs remove, in points of the baseline wage bill (the automation downside). A-independent. */
+  demandLost: number;
 }
