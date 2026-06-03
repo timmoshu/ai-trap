@@ -4,7 +4,7 @@ import { ContentPage, proseStyles as s } from '@/components/ContentPage';
 export const metadata: Metadata = {
   title: 'Limitations — The AI Trap',
   description:
-    'The strongest objections to this model — and our honest answers. Scope, assumptions, the named opposing view, and what the model is silent on.',
+    'The strongest objections to this model — and our honest answers. Scope, assumptions, another view, and what the model is silent on.',
 };
 
 const OBJECTIONS: { q: string; tag: string; a: React.ReactNode }[] = [
@@ -133,13 +133,21 @@ export default function LimitationsPage() {
         </details>
       ))}
 
-      <h2>The named opposing view: Chad Jones</h2>
+      <h2>Another view: Chad Jones</h2>
       <p>
         The strongest good-faith counter is the <strong>weak-links / reinstatement</strong> view
-        associated with Chad Jones: over a long enough horizon, displaced labor reallocates into new
-        and complementary tasks, reabsorption rises (η ≥ 1), and the trap dissolves — or reverses
-        into under-automation. In this tool that corresponds to pushing the reabsorption slider to 1
-        and beyond, where the wedge hits zero and then flips sign.
+        associated with{' '}
+        <a
+          href="https://www.youtube.com/watch?v=xBpGn3BDcOY"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Chad Jones
+        </a>
+        : over a long enough horizon, displaced labor reallocates into new and complementary tasks,
+        reabsorption rises (η ≥ 1), and the trap dissolves — or reverses into under-automation. In
+        this tool that corresponds to pushing the reabsorption slider to 1 and beyond, where the
+        wedge hits zero and then flips sign.
       </p>
       <p>
         We present our result as a <strong>transitional friction</strong>, not a refutation of that

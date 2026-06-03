@@ -38,8 +38,8 @@ export function Slider({
     <div className={`${styles.row} ${disabled ? styles.disabledRow : ''}`}>
       <div className={styles.head}>
         <label htmlFor={id} className={styles.label}>
-          <span className={styles.symbol}>{symbol}</span>
           <span>{label}</span>
+          {symbol && <span className={styles.symbol}>{symbol}</span>}
           {illustrative && <span className={styles.tag}>illustrative</span>}
         </label>
         <output htmlFor={id} className={`${styles.value} tabular`}>

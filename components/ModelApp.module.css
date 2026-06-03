@@ -43,20 +43,26 @@
   border-color: var(--accent);
 }
 
-.kicker {
-  font-family: var(--font-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--accent);
+.attribution {
+  font-size: 13.5px;
+  color: var(--ink-2);
   margin: var(--s6) 0 var(--s3);
+}
+.attribution a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--motion-fast) var(--ease);
+}
+.attribution a:hover {
+  border-bottom-color: var(--accent);
 }
 .frame {
   font-family: var(--font-serif);
   font-size: 32px;
   line-height: 1.22;
   color: var(--ink);
-  max-width: 18ch;
+  max-width: 30ch;
   margin: 0 0 var(--s3);
   font-weight: 500;
   letter-spacing: -0.015em;
@@ -111,7 +117,7 @@
   flex-direction: column;
   gap: var(--s1);
 }
-.metric > span:last-child {
+.val {
   font-family: var(--font-sans);
   font-variant-numeric: tabular-nums;
   font-size: 21px;
@@ -131,24 +137,33 @@
   border-left: 2px solid var(--border);
   text-align: right;
 }
-.wedge > span:last-child {
+.wedge .val {
   font-size: 30px;
 }
-.trap > span:last-child,
+.wedgeState {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--ink-3);
+}
+.trap .val,
+.trap .wedgeState,
 .trap .mLabel {
   color: var(--trap);
 }
 .trap {
   border-left-color: var(--trap);
 }
-.fix > span:last-child,
+.fix .val,
+.fix .wedgeState,
 .fix .mLabel {
   color: var(--fix);
 }
 .fix {
   border-left-color: var(--fix);
 }
-.reversed > span:last-child,
+.reversed .val,
+.reversed .wedgeState,
 .reversed .mLabel {
   color: var(--accent);
 }
@@ -184,28 +199,14 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--s3);
   margin-bottom: var(--s4);
 }
-.replayBtn {
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--ink);
-  border-radius: var(--radius);
-  padding: var(--s2) var(--s3);
-  transition: border-color var(--motion-fast) var(--ease);
-}
-.replayBtn:hover {
-  border-color: var(--accent);
-}
-
 .realRow {
   display: flex;
   align-items: center;
   gap: var(--s3);
-  margin-bottom: var(--s4);
 }
 .realToggle {
   font: inherit;

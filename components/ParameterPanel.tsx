@@ -1,5 +1,5 @@
 'use client';
-import { PARAM_META, type Scenario } from '@/lib/engine';
+import { PARAM_META, DEFAULTS, type Scenario } from '@/lib/engine';
 import { Slider } from './Slider';
 import styles from './Panel.module.css';
 
@@ -19,9 +19,27 @@ export function ParameterPanel({
   update: (patch: Partial<Scenario>) => void;
 }) {
   const structural = PARAM_META.filter((m) => m.key !== 'tau');
+  // Restore the paper's illustrative baseline (model params + assumptions); leave the view and
+  // the illustrative animation speeds as the user set them.
+  const resetToPaper = () =>
+    update({
+      N: DEFAULTS.N,
+      c: DEFAULTS.c,
+      lambda: DEFAULTS.lambda,
+      eta: DEFAULTS.eta,
+      k: DEFAULTS.k,
+      mu: DEFAULTS.mu,
+      tau: DEFAULTS.tau,
+      wageRigid: true,
+    });
   return (
     <section className={styles.panel} aria-label="Model parameters">
-      <h2 className={styles.title}>Parameters</h2>
+      <div className={styles.titleRow}>
+        <h2 className={styles.title}>Parameters</h2>
+        <button type="button" className={styles.resetBtn} onClick={resetToPaper}>
+          ↺ Reset to paper
+        </button>
+      </div>
       {structural.map((m) => {
         const value = scenario[m.key] as number;
         const etaPinned = m.key === 'eta' && !scenario.wageRigid;

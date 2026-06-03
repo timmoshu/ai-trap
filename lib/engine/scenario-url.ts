@@ -48,22 +48,32 @@ export function effectiveParams(sc: Scenario): Params {
 
 const num = (x: number): string => String(Math.round(x * 10000) / 10000);
 
+/**
+ * Encode only what differs from the default scenario, so a pristine view yields an empty (clean)
+ * URL and a shared link carries just the parameters the user actually changed. decodeScenario fills
+ * every omitted key from the documented defaults, so this round-trips exactly.
+ */
 export function encodeScenario(sc: Scenario): string {
+  const d = DEFAULT_SCENARIO;
   const q = new URLSearchParams();
-  q.set('v', String(SCENARIO_VERSION));
-  q.set('N', num(sc.N));
-  q.set('c', num(sc.c));
-  q.set('lambda', num(sc.lambda));
-  q.set('eta', num(sc.eta));
-  q.set('k', num(sc.k));
-  q.set('tau', num(sc.tau));
-  q.set('mu', num(sc.mu));
-  q.set('A', num(sc.A));
-  q.set('wageRigid', sc.wageRigid ? '1' : '0');
-  q.set('spd', num(sc.adjustmentSpeed));
-  q.set('reab', num(sc.reabsorptionRate));
-  q.set('view', sc.view);
-  return q.toString();
+  const setNum = (key: string, val: number, def: number) => {
+    if (Math.abs(val - def) > 1e-9) q.set(key, num(val));
+  };
+  setNum('N', sc.N, d.N);
+  setNum('c', sc.c, d.c);
+  setNum('lambda', sc.lambda, d.lambda);
+  setNum('eta', sc.eta, d.eta);
+  setNum('k', sc.k, d.k);
+  setNum('tau', sc.tau, d.tau);
+  setNum('mu', sc.mu, d.mu);
+  setNum('A', sc.A, d.A);
+  if (sc.wageRigid !== d.wageRigid) q.set('wageRigid', sc.wageRigid ? '1' : '0');
+  setNum('spd', sc.adjustmentSpeed, d.adjustmentSpeed);
+  setNum('reab', sc.reabsorptionRate, d.reabsorptionRate);
+  if (sc.view !== d.view) q.set('view', sc.view);
+  const rest = q.toString();
+  // version prefix only when there is something to version (keeps the default URL empty)
+  return rest ? `v=${SCENARIO_VERSION}&${rest}` : '';
 }
 
 const f = (q: URLSearchParams, key: string, fallback: number): number => {

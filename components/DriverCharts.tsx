@@ -3,13 +3,13 @@ import { useEffect, useRef } from 'react';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import type { DynamicPoint } from '@/lib/engine';
+import type { Sector } from '@/lib/sectors';
 import styles from './DriverCharts.module.css';
 
 const INK = '#34342f';
 const OPT = '#2f6f4f';
 const GRID = '#eeede8';
 const AXIS = '#6e6e66';
-const PLAY_MS = 2600;
 
 type MetricKey = 'unemployment' | 'demandIndex' | 'profitIndex' | 'automation';
 interface Metric {
@@ -36,13 +36,33 @@ const METRICS: Metric[] = [
   {
     key: 'profitIndex',
     title: 'Corporate profits',
-    sub: '% of the most they could earn',
+    sub: 'vs. the best achievable (100)',
     unit: '',
   },
 ];
 
-const reduced = () =>
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Sector "Make it real" flavor for a panel's heading — nouns only, never data. */
+function metricLabel(m: Metric, sector?: Sector): { title: string; sub: string } {
+  if (!sector) return { title: m.title, sub: m.sub };
+  switch (m.key) {
+    case 'automation':
+      return { title: 'Automation', sub: `share of ${sector.work} now handled by AI` };
+    case 'unemployment':
+      return {
+        title: `${cap(sector.workers)} displaced`,
+        sub: `share of ${sector.workers} who lose work, after re-hiring`,
+      };
+    case 'demandIndex':
+      return { title: 'Consumer spending', sub: 'vs. before automation (100)' };
+    case 'profitIndex':
+      return {
+        title: 'Corporate profits',
+        sub: `per ${sector.firm}, vs. the best achievable (100)`,
+      };
+  }
+}
 
 function rangeFor(cur: number[], refVal: number, key: MetricKey): [number, number] {
   const all = [...cur, refVal];
@@ -54,19 +74,18 @@ function rangeFor(cur: number[], refVal: number, key: MetricKey): [number, numbe
 }
 
 /**
- * The cascade, decomposed. Four small charts share a time axis and a playhead that replays the
- * trajectory so the feedback is visible. Each shows the current path (solid ink) against the
- * efficient-optimum outcome (dashed green) — the gap between them is the cost of over-automation,
- * and interventions visibly move the solid line toward the dashed one.
+ * The cascade, decomposed. Four small charts share a time axis. Each shows the current path
+ * (solid ink) against the efficient-optimum outcome (dashed green) — the gap between them is the
+ * cost of over-automation, and interventions visibly move the solid line toward the dashed one.
  */
 export function DriverCharts({
   data,
   optimum,
-  replayKey,
+  sector,
 }: {
   data: DynamicPoint[];
   optimum: DynamicPoint;
-  replayKey: number;
+  sector?: Sector;
 }) {
   const els = useRef<(HTMLDivElement | null)[]>([]);
   const plots = useRef<(uPlot | null)[]>([]);
@@ -152,37 +171,6 @@ export function DriverCharts({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sig]);
 
-  // replay the cascade (mount, Replay button, interventions): progressive reveal
-  useEffect(() => {
-    if (raf.current) cancelAnimationFrame(raf.current);
-    const N = xs.length;
-    const reveal = (prog: number) => {
-      const n = Math.max(1, Math.floor(prog * (N - 1)) + 1);
-      METRICS.forEach((m, i) => {
-        const u = plots.current[i];
-        if (!u) return;
-        const cur = data.map((d, idx) => (idx < n ? d[m.key] : null));
-        u.setData([xs, cur, new Array(N).fill(optimum[m.key])]);
-      });
-    };
-    if (reduced()) {
-      reveal(1);
-      return;
-    }
-    let start: number | null = null;
-    const tick = (ts: number) => {
-      if (start === null) start = ts;
-      const prog = Math.min(1, (ts - start) / PLAY_MS);
-      reveal(prog);
-      raf.current = prog < 1 ? requestAnimationFrame(tick) : null;
-    };
-    raf.current = requestAnimationFrame(tick);
-    return () => {
-      if (raf.current) cancelAnimationFrame(raf.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [replayKey]);
-
   return (
     <div>
       <div className={styles.legend} aria-hidden="true">
@@ -194,11 +182,12 @@ export function DriverCharts({
         {METRICS.map((m, i) => {
           const last = data[data.length - 1][m.key];
           const opt = optimum[m.key];
+          const { title, sub } = metricLabel(m, sector);
           return (
             <figure className={styles.cell} key={m.key}>
               <figcaption className={styles.head}>
-                <span className={styles.title}>{m.title}</span>
-                <span className={styles.sub}>{m.sub}</span>
+                <span className={styles.title}>{title}</span>
+                <span className={styles.sub}>{sub}</span>
                 <span className={styles.now}>
                   {Math.round(last)}
                   {m.unit}
@@ -215,7 +204,7 @@ export function DriverCharts({
                 }}
                 className={styles.plot}
                 role="img"
-                aria-label={`${m.title}: settles at ${Math.round(last)}${m.unit}; efficient optimum ${Math.round(opt)}${m.unit}.`}
+                aria-label={`${title}: settles at ${Math.round(last)}${m.unit}; efficient optimum ${Math.round(opt)}${m.unit}.`}
               />
             </figure>
           );

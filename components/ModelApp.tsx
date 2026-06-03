@@ -18,7 +18,7 @@ import { PolicyPanel } from './PolicyPanel';
 import { Footer } from './Footer';
 import { Slider } from './Slider';
 import { NarrativePanel } from './NarrativePanel';
-import { SECTORS, DEFAULT_SECTOR } from '@/lib/sectors';
+import { SECTORS, DEFAULT_SECTOR, getSector } from '@/lib/sectors';
 import styles from './ModelApp.module.css';
 import panel from './Panel.module.css';
 
@@ -32,10 +32,8 @@ function gapState(gap: number): { label: string; cls: string } {
 }
 
 export function ModelApp() {
-  const { scenario, update, reset } = useScenario();
+  const { scenario, update } = useScenario();
   const [copied, setCopied] = useState(false);
-  const [replayKey, setReplayKey] = useState(0);
-  const replay = () => setReplayKey((k) => k + 1);
   const [makeReal, setMakeReal] = useState(false);
   const [sectorId, setSectorId] = useState(DEFAULT_SECTOR.id);
 
@@ -95,8 +93,11 @@ export function ModelApp() {
       </header>
 
       <div>
-        <p className={`${styles.kicker} reveal`} style={{ animationDelay: '40ms' }}>
-          Interactive model · the AI layoff trap
+        <p className={`${styles.attribution} reveal`} style={{ animationDelay: '40ms' }}>
+          An interactive model of the research paper{' '}
+          <a href="https://arxiv.org/abs/2603.20617" target="_blank" rel="noopener noreferrer">
+            “The AI Layoff Trap” — Falk &amp; Tsoukalas, 2026 ↗
+          </a>
         </p>
         <h1 className={`${styles.frame} reveal`} style={{ animationDelay: '120ms' }}>
           Firms automate past the point of maximum <em>profit</em>.
@@ -104,8 +105,8 @@ export function ModelApp() {
         <p className={`${styles.subline} reveal`} style={{ animationDelay: '200ms' }}>
           In this model, each layoff shrinks the demand <em>every</em> firm sells into — but each
           firm bears only a fraction of that loss. So competing firms over-automate, and where wages
-          are sticky, the more competitors there are, the worse they overshoot. Watch it unfold,
-          then find the fix.
+          are sticky, the more competitors there are, the worse they overshoot. See how it plays
+          out, then find the fix.
         </p>
       </div>
 
@@ -114,29 +115,22 @@ export function ModelApp() {
           <div className={styles.readout}>
             <div className={styles.metric}>
               <span className={styles.mLabel}>Automation — free market</span>
-              <span className="tabular">{(stat.alphaNE * 100).toFixed(0)}%</span>
+              <span className={`${styles.val} tabular`}>{(stat.alphaNE * 100).toFixed(0)}%</span>
             </div>
             <div className={styles.metric}>
               <span className={styles.mLabel}>Most profitable level</span>
-              <span className="tabular">{(stat.alphaCO * 100).toFixed(0)}%</span>
+              <span className={`${styles.val} tabular`}>{(stat.alphaCO * 100).toFixed(0)}%</span>
             </div>
             <div className={`${styles.metric} ${styles.wedge} ${ws.cls}`}>
-              <span className={styles.mLabel}>Over-automation → {ws.label}</span>
-              <span className="tabular">{(gap * 100).toFixed(0)} pts</span>
+              <span className={styles.mLabel}>Over-automation</span>
+              <span className={`${styles.val} tabular`}>{(gap * 100).toFixed(0)} pts</span>
+              <span className={styles.wedgeState}>{ws.label}</span>
             </div>
           </div>
 
           <div className={styles.viewRow}>
             <ViewToggle view={scenario.view} onChange={(v) => update({ view: v })} />
             {scenario.view === 'timeseries' && (
-              <button className={styles.replayBtn} onClick={replay}>
-                ▶ Replay
-              </button>
-            )}
-          </div>
-
-          {scenario.view === 'timeseries' ? (
-            <>
               <div className={styles.realRow}>
                 <button
                   type="button"
@@ -161,7 +155,16 @@ export function ModelApp() {
                   </select>
                 )}
               </div>
-              <DriverCharts data={path} optimum={optimum} replayKey={replayKey} />
+            )}
+          </div>
+
+          {scenario.view === 'timeseries' ? (
+            <>
+              <DriverCharts
+                data={path}
+                optimum={optimum}
+                sector={makeReal ? getSector(sectorId) : undefined}
+              />
               {makeReal && (
                 <NarrativePanel
                   sectorId={sectorId}
@@ -231,16 +234,12 @@ export function ModelApp() {
                   : 'Off: wages adjust freely, so there is no demand shortfall — the trap disappears.'
               }
               checked={scenario.wageRigid}
-              onChange={(v) => {
-                update({ wageRigid: v });
-                replay();
-              }}
+              onChange={(v) => update({ wageRigid: v })}
             />
             <TaxControl
               tau={scenario.tau}
               optimumTax={stat.tauStarExact}
               onChange={(v) => update({ tau: v })}
-              onApply={replay}
             />
           </section>
 
@@ -275,10 +274,6 @@ export function ModelApp() {
               />
             </div>
           </details>
-
-          <button className={styles.reset} onClick={reset}>
-            Reset to defaults
-          </button>
         </aside>
       </div>
 

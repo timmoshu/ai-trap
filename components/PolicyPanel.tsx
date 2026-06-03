@@ -32,9 +32,13 @@ export function PolicyPanel({ base }: { base: Params }) {
 
   return (
     <section className={styles.group} aria-label="Policies in this model">
-      <div className={styles.groupTitle}>
-        Policies <span className={styles.muted}>— what each does in this model</span>
-      </div>
+      <div className={styles.groupTitle}>Could another policy fix it?</div>
+      <p className={styles.policyIntro}>
+        Each bar is the automation rate a policy produces in this model; the vertical mark is the
+        efficient optimum. A real fix has to move the bar onto the mark — but most popular responses
+        just shift money around without touching the automation decision, so the bar doesn&apos;t
+        budge. Only the automation tax (and full sector-wide bargaining) reaches the optimum.
+      </p>
       <div className={styles.policy}>
         {rows.map((r) => (
           <div className={styles.policyRow} key={r.name}>

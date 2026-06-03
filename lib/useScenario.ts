@@ -19,7 +19,8 @@ export function useScenario() {
 
   useEffect(() => {
     if (!hydrated) return;
-    const url = `${window.location.pathname}?${encodeScenario(scenario)}`;
+    const qs = encodeScenario(scenario);
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
     window.history.replaceState(null, '', url);
   }, [scenario, hydrated]);
 

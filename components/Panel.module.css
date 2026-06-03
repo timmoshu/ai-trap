@@ -13,3 +13,28 @@
   margin: 0 0 var(--s2);
   font-weight: 600;
 }
+
+.titleRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  margin-bottom: var(--s2);
+}
+.titleRow .title {
+  margin: 0;
+}
+.resetBtn {
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--accent);
+  padding: 0;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--motion-fast) var(--ease);
+}
+.resetBtn:hover {
+  border-bottom-color: var(--accent);
+}
