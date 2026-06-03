@@ -6,8 +6,8 @@ import styles from './Panel.module.css';
 const fmt: Record<string, (v: number) => string> = {
   N: (v) => String(Math.round(v)),
   c: (v) => v.toFixed(2),
-  lambda: (v) => v.toFixed(2),
-  eta: (v) => v.toFixed(2),
+  lambda: (v) => `${Math.round(v * 100)}%`,
+  eta: (v) => `${Math.round(v * 100)}%`,
   k: (v) => v.toFixed(2),
 };
 
@@ -44,9 +44,9 @@ export function ParameterPanel({
         const value = scenario[m.key] as number;
         const etaPinned = m.key === 'eta' && !scenario.wageRigid;
         const hint = etaPinned
-          ? 'Pinned to 1 under flexible wages — turn sticky wages on to vary it.'
+          ? 'Pinned to 100% under flexible wages — turn sticky wages on to vary it.'
           : m.key === 'eta' && value > 1
-            ? 'η > 1 — the trap reverses (under-automation). '
+            ? 'Above 100% — re-hired at better pay, so the trap reverses (under-automation). '
             : undefined;
         return (
           <Slider

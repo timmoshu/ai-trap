@@ -58,10 +58,10 @@ export function ModelApp() {
   // Debounced screen-reader summary (announces the settled result once, not on every drag tick).
   const [liveMsg, setLiveMsg] = useState('');
   const summary =
-    `Free-market automation ${(stat.alphaNE * 100).toFixed(0)}%, efficient level ` +
+    `Market automation ${(stat.alphaNE * 100).toFixed(0)}%, optimal level ` +
     `${(stat.alphaCO * 100).toFixed(0)}% (${ws.label}). ${scenario.view === 'hill' ? 'Big-picture profit view.' : 'Over-time view.'} ` +
-    `It settles at ${settled.unemployment.toFixed(0)}% unemployment, consumer spending ` +
-    `${settled.demandIndex.toFixed(0)} vs 100, corporate profits ${settled.profitIndex.toFixed(0)}% of the best achievable.`;
+    `It settles at ${settled.unemployment.toFixed(0)}% net jobs displaced, consumer spending ` +
+    `${settled.demandIndex.toFixed(0)} vs 100 before automation, corporate profits ${settled.profitIndex.toFixed(0)} vs 100.`;
   useEffect(() => {
     const id = setTimeout(() => setLiveMsg(summary), 500);
     return () => clearTimeout(id);
@@ -114,17 +114,17 @@ export function ModelApp() {
         <main className={styles.stage}>
           <div className={styles.readout}>
             <div className={styles.metric}>
-              <span className={styles.mLabel}>Automation — free market</span>
+              <span className={styles.mLabel}>Market automation</span>
               <span className={`${styles.val} tabular`}>{(stat.alphaNE * 100).toFixed(0)}%</span>
             </div>
             <div className={styles.metric}>
-              <span className={styles.mLabel}>Most profitable level</span>
+              <span className={styles.mLabel}>Optimal level</span>
               <span className={`${styles.val} tabular`}>{(stat.alphaCO * 100).toFixed(0)}%</span>
             </div>
-            <div className={`${styles.metric} ${styles.wedge} ${ws.cls}`}>
-              <span className={styles.mLabel}>Over-automation</span>
-              <span className={`${styles.val} tabular`}>{(gap * 100).toFixed(0)} pts</span>
-              <span className={styles.wedgeState}>{ws.label}</span>
+            <div className={`${styles.gap} ${ws.cls}`}>
+              <span className={styles.gapLabel}>Over-automation</span>
+              <span className={`${styles.gapVal} tabular`}>{(gap * 100).toFixed(0)} pts</span>
+              <span className={styles.gapState}>{ws.label}</span>
             </div>
           </div>
 
@@ -227,11 +227,11 @@ export function ModelApp() {
             <h2 className={panel.title}>Levers &amp; off-switches</h2>
             <Toggle
               id="toggle-wage"
-              label="Sticky wages (can't fall)"
+              label="Sticky wages (pay can't fall)"
               description={
                 scenario.wageRigid
-                  ? 'On: lost jobs mean lost spending, so the trap is live. Turn off to let wages adjust.'
-                  : 'Off: wages adjust freely, so there is no demand shortfall — the trap disappears.'
+                  ? "On: pay can't fall, so each layoff is pure lost spending for everyone — that demand shortfall is what creates the trap. Turn it off to see the gap vanish."
+                  : 'Off: pay adjusts so total spending never drops (the same as 100% of workers re-absorbed). With no demand shortfall, the over-automation gap above falls to zero — that is why the trap needs sticky wages.'
               }
               checked={scenario.wageRigid}
               onChange={(v) => update({ wageRigid: v })}

@@ -12,7 +12,7 @@
  * path illustrative."
  */
 import type { DynamicPoint, Params } from './types';
-import { alphaNE, alphaCO, aggregateProfit } from './static';
+import { alphaNE, aggregateProfit } from './static';
 import { DYNAMIC_DEFAULTS } from './defaults';
 
 export interface DynamicConfig {
@@ -21,8 +21,14 @@ export interface DynamicConfig {
   periods: number;
 }
 
-/** Profit gained at the efficient optimum vs. no automation — the 100% reference for profitIndex. */
-const profitDenom = (p: Params): number => aggregateProfit(p, alphaCO(p)) - aggregateProfit(p, 0);
+/**
+ * Profit indexed to BEFORE automation (= 100). We express the change in aggregate profit as points
+ * of baseline revenue (the demand at zero automation, which is always positive) — robust even where
+ * the stylized profit *level* is negative, and on the same "vs. before (100)" footing as demand.
+ * Automation lifts profit above 100; the free market overshoots and ends up below the optimum line.
+ */
+const profitIndexVsBase = (p: Params, a: number, baseDemand: number): number =>
+  100 + ((aggregateProfit(p, a) - aggregateProfit(p, 0)) / baseDemand) * 100;
 
 /** Simulate the cascade as firms move automation toward `target`. */
 export function simulateToTarget(
@@ -31,8 +37,6 @@ export function simulateToTarget(
   cfg: DynamicConfig = DYNAMIC_DEFAULTS,
 ): DynamicPoint[] {
   const baseDemand = p.A + p.lambda * p.w * p.L * p.N;
-  const denom = profitDenom(p);
-  const profitGain = (a: number) => aggregateProfit(p, a) - aggregateProfit(p, 0);
 
   let alpha = 0;
   let g = 0;
@@ -46,7 +50,7 @@ export function simulateToTarget(
       automation: alpha * 100,
       unemployment: Math.max(0, alpha - rehired) * 100,
       demandIndex: (demand / baseDemand) * 100,
-      profitIndex: denom > 1e-9 ? (profitGain(alpha) / denom) * 100 : 0,
+      profitIndex: profitIndexVsBase(p, alpha, baseDemand),
     });
     alpha += cfg.adjustmentSpeed * (target - alpha);
     g += cfg.reabsorptionRate * (1 - g);
@@ -62,14 +66,12 @@ export function simulate(p: Params, cfg: DynamicConfig = DYNAMIC_DEFAULTS): Dyna
 /** Steady-state drivers at a given automation level — the invariant target and the reference line. */
 export function steadyMetrics(p: Params, target: number): DynamicPoint {
   const baseDemand = p.A + p.lambda * p.w * p.L * p.N;
-  const denom = profitDenom(p);
   const demand = p.A + p.lambda * p.w * p.L * p.N * (1 - (1 - p.eta) * target);
   return {
     t: -1,
     automation: target * 100,
     unemployment: Math.max(0, target * (1 - p.eta)) * 100,
     demandIndex: (demand / baseDemand) * 100,
-    profitIndex:
-      denom > 1e-9 ? ((aggregateProfit(p, target) - aggregateProfit(p, 0)) / denom) * 100 : 0,
+    profitIndex: profitIndexVsBase(p, target, baseDemand),
   };
 }

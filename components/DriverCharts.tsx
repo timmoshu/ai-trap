@@ -28,15 +28,15 @@ const METRICS: Metric[] = [
   },
   {
     key: 'unemployment',
-    title: 'Workers displaced',
-    sub: "share of this sector's jobs lost, after re-hiring",
+    title: 'Net jobs displaced',
+    sub: "share of this sector's jobs lost, net of re-hiring",
     unit: '%',
   },
   { key: 'demandIndex', title: 'Consumer spending', sub: 'vs. before automation (100)', unit: '' },
   {
     key: 'profitIndex',
     title: 'Corporate profits',
-    sub: 'vs. the best achievable (100)',
+    sub: 'vs. before automation (100)',
     unit: '',
   },
 ];
@@ -51,15 +51,15 @@ function metricLabel(m: Metric, sector?: Sector): { title: string; sub: string }
       return { title: 'Automation', sub: `share of ${sector.work} now handled by AI` };
     case 'unemployment':
       return {
-        title: `${cap(sector.workers)} displaced`,
-        sub: `share of ${sector.workers} who lose work, after re-hiring`,
+        title: `Net ${sector.workers} displaced`,
+        sub: `share of ${sector.workers} who lose work, net of re-hiring`,
       };
     case 'demandIndex':
       return { title: 'Consumer spending', sub: 'vs. before automation (100)' };
     case 'profitIndex':
       return {
         title: 'Corporate profits',
-        sub: `per ${sector.firm}, vs. the best achievable (100)`,
+        sub: `per ${sector.firm}, vs. before automation (100)`,
       };
   }
 }

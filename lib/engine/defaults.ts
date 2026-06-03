@@ -65,9 +65,9 @@ export const PARAM_META: ParamMeta[] = [
   {
     key: 'eta',
     symbol: 'η',
-    label: 'How fast laid-off workers find new jobs',
+    label: 'Laid-off workers who find new work',
     citation:
-      'How much of laid-off workers’ lost spending comes back as they find other work. At 100% the trap closes; above 100% (re-hired at better pay) it reverses. Illustrative 30%.',
+      'The share of laid-off workers who find new work (so their lost spending comes back). At 100% the trap closes; above 100% — re-hired at better pay — it reverses. Illustrative 30%.',
     min: 0,
     max: 1.5,
     step: 0.01,
