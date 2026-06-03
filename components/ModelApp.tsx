@@ -12,16 +12,14 @@ import {
   DYNAMIC_DEFAULTS,
 } from '@/lib/engine';
 import { useScenario } from '@/lib/useScenario';
-import { ParameterPanel } from './ParameterPanel';
-import { Toggle } from './Toggle';
 import { ViewToggle } from './ViewToggle';
-import { PolicyControls } from './PolicyControls';
+import { ControlsContent } from './ControlsContent';
+import { MobileControls } from './MobileControls';
 import { Footer } from './Footer';
 import { Slider } from './Slider';
 import { NarrativePanel } from './NarrativePanel';
 import { SECTORS, DEFAULT_SECTOR, getSector } from '@/lib/sectors';
 import styles from './ModelApp.module.css';
-import panel from './Panel.module.css';
 
 const DriverCharts = dynamic(() => import('./DriverCharts'), { ssr: false });
 const LinkagePanels = dynamic(() => import('./LinkagePanels'), { ssr: false });
@@ -87,6 +85,28 @@ export function ModelApp() {
     }
   };
 
+  // Reused in the chart column and (on mobile) pinned at the top of the controls drawer, so the
+  // over-automation gap updates live as you drag a lever.
+  const renderReadout = () => (
+    <div className={styles.readout}>
+      <div className={styles.metric}>
+        <span className={styles.mLabel}>
+          {scenario.regime === 'free' ? 'Market automation' : 'Automation'}
+        </span>
+        <span className={`${styles.val} tabular`}>{(target * 100).toFixed(0)}%</span>
+      </div>
+      <div className={styles.metric}>
+        <span className={styles.mLabel}>Optimal level</span>
+        <span className={`${styles.val} tabular`}>{(stat.alphaCO * 100).toFixed(0)}%</span>
+      </div>
+      <div className={`${styles.gap} ${ws.cls}`}>
+        <span className={styles.gapLabel}>Over-automation</span>
+        <span className={`${styles.gapVal} tabular`}>{(gap * 100).toFixed(0)} pts</span>
+        <span className={styles.gapState}>{ws.label}</span>
+      </div>
+    </div>
+  );
+
   return (
     <div className={styles.app}>
       <header className={styles.top}>
@@ -122,23 +142,7 @@ export function ModelApp() {
 
       <div className={`${styles.grid} reveal`} style={{ animationDelay: '300ms' }}>
         <main className={styles.stage}>
-          <div className={styles.readout}>
-            <div className={styles.metric}>
-              <span className={styles.mLabel}>
-                {scenario.regime === 'free' ? 'Market automation' : 'Automation'}
-              </span>
-              <span className={`${styles.val} tabular`}>{(target * 100).toFixed(0)}%</span>
-            </div>
-            <div className={styles.metric}>
-              <span className={styles.mLabel}>Optimal level</span>
-              <span className={`${styles.val} tabular`}>{(stat.alphaCO * 100).toFixed(0)}%</span>
-            </div>
-            <div className={`${styles.gap} ${ws.cls}`}>
-              <span className={styles.gapLabel}>Over-automation</span>
-              <span className={`${styles.gapVal} tabular`}>{(gap * 100).toFixed(0)} pts</span>
-              <span className={styles.gapState}>{ws.label}</span>
-            </div>
-          </div>
+          {renderReadout()}
 
           <div className={styles.viewRow}>
             <ViewToggle view={scenario.view} onChange={(v) => update({ view: v })} />
@@ -262,58 +266,13 @@ export function ModelApp() {
         </main>
 
         <aside className={styles.controls}>
-          <ParameterPanel scenario={scenario} update={update} />
-
-          <section className={panel.panel}>
-            <h2 className={panel.title}>Assumption you can switch off</h2>
-            <Toggle
-              id="toggle-wage"
-              label="Sticky wages (pay can't fall)"
-              description={
-                scenario.wageRigid
-                  ? "On: pay can't fall, so a laid-off worker can't re-price into a new job — they stay unemployed, and their lost wages are lost spending for everyone. That demand hole is the trap. Turn it off to see it vanish."
-                  : 'Off: wages adjust until displaced workers are re-absorbed into other work, so their income returns and the demand hole closes. This is the idealized full-reabsorption case (η = 100%) — re-hiring at lower pay restores only part of it, which is what the η slider sets.'
-              }
-              checked={scenario.wageRigid}
-              onChange={(v) => update({ wageRigid: v })}
-            />
-          </section>
-
-          <PolicyControls scenario={scenario} update={update} optimumTax={stat.tauStarExact} />
-
-          <details className={styles.advanced}>
-            <summary>Advanced — speed of the transition (illustrative)</summary>
-            <div className={styles.advancedBody}>
-              <Slider
-                id="dyn-speed"
-                label="How fast firms automate"
-                symbol="σ"
-                value={scenario.adjustmentSpeed}
-                min={0.02}
-                max={1}
-                step={0.01}
-                onChange={(v) => update({ adjustmentSpeed: v })}
-                format={(v) => v.toFixed(2)}
-                illustrative
-                citation="Pace of the change only — the end point (the paper's equilibrium) is unchanged."
-              />
-              <Slider
-                id="dyn-reab"
-                label="How fast laid-off workers are re-hired"
-                symbol="ρ"
-                value={scenario.reabsorptionRate}
-                min={0.02}
-                max={1}
-                step={0.01}
-                onChange={(v) => update({ reabsorptionRate: v })}
-                format={(v) => v.toFixed(2)}
-                illustrative
-                citation="Pace of re-hiring only — slower re-hiring deepens the dip but the end point is unchanged."
-              />
-            </div>
-          </details>
+          <ControlsContent scenario={scenario} update={update} optimumTax={stat.tauStarExact} />
         </aside>
       </div>
+
+      <MobileControls readout={renderReadout()}>
+        <ControlsContent scenario={scenario} update={update} optimumTax={stat.tauStarExact} />
+      </MobileControls>
 
       <Footer />
 

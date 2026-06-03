@@ -1,0 +1,114 @@
+/* Mobile controls drawer — only present below the single-column breakpoint. */
+.wrap {
+  display: none;
+}
+
+@media (max-width: 880px) {
+  .wrap {
+    display: block;
+  }
+
+  /* Floating "Adjust the model" button, pinned bottom-centre, above the content. */
+  .trigger {
+    position: fixed;
+    left: 50%;
+    bottom: var(--s4);
+    transform: translateX(-50%);
+    z-index: 40;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--surface);
+    background: var(--ink);
+    border: none;
+    border-radius: 999px;
+    padding: var(--s3) var(--s6);
+    min-height: 48px;
+    white-space: nowrap;
+    box-shadow: 0 6px 22px rgba(27, 27, 25, 0.3);
+    cursor: pointer;
+  }
+
+  .scrim {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    background: rgba(27, 27, 25, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--motion) var(--ease);
+  }
+  .scrimOpen {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    box-shadow: 0 -8px 30px rgba(27, 27, 25, 0.25);
+    transform: translateY(110%);
+    transition: transform var(--motion) var(--ease);
+  }
+  .sheetOpen {
+    transform: translateY(0);
+  }
+
+  .head {
+    position: relative;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--s2) var(--s4);
+  }
+  .handle {
+    width: 40px;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--border);
+  }
+  .done {
+    position: absolute;
+    right: var(--s3);
+    top: 50%;
+    transform: translateY(-50%);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    min-height: 44px;
+    padding: 0 var(--s2);
+  }
+
+  /* Pinned live readout — the instant feedback while you drag a lever. */
+  .readout {
+    flex: none;
+    padding: 0 var(--s4) var(--s3);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Scrollable controls. */
+  .body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: var(--s3) var(--s4) var(--s7);
+    display: flex;
+    flex-direction: column;
+    gap: var(--s3);
+  }
+}

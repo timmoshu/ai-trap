@@ -327,6 +327,14 @@
   .grid {
     grid-template-columns: 1fr;
   }
+  /* the aside is replaced by the controls drawer on mobile */
+  .controls {
+    display: none;
+  }
+  /* leave clearance for the floating "Adjust the model" button */
+  .app {
+    padding-bottom: 92px;
+  }
   .frame {
     font-size: 24px;
   }
