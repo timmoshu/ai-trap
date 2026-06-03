@@ -3,7 +3,6 @@ import { useEffect, useRef } from 'react';
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
 import type { DynamicPoint } from '@/lib/engine';
-import type { Sector } from '@/lib/sectors';
 import styles from './DriverCharts.module.css';
 
 const INK = '#34342f';
@@ -41,60 +40,53 @@ function rangeFor(all: number[], zero: boolean): [number, number] {
  *    the lost demand cuts revenue. Their gap is the profit change; it is widest at the optimum and
  *    shrinks as firms over-automate. This is why level policies (UBI / profit tax) change neither.
  */
-export function LinkagePanels({
-  data,
-  optimum,
-  sector,
-}: {
-  data: DynamicPoint[];
-  optimum: DynamicPoint;
-  sector?: Sector;
-}) {
+export function LinkagePanels({ data, n }: { data: DynamicPoint[]; n: number }) {
   const els = useRef<(HTMLDivElement | null)[]>([]);
   const plots = useRef<(uPlot | null)[]>([]);
   const ranges = useRef<[number, number][]>([]);
 
   const xs = data.map((d) => d.t);
-  const work = sector ? sector.work : 'the work';
+  const last = data[data.length - 1];
 
+  // The two panels are the SAME two forces (cost saved vs. demand lost). The only difference is how
+  // much demand-loss each line counts: a single firm counts only the 1/N slice its own layoffs cost
+  // it (so it keeps automating to the market level); collectively, every firm eats the full hit (so
+  // they overshoot the optimum). That gap IS the externality.
   const panels: Panel[] = [
     {
-      title: 'What each firm pays',
-      sub: `cost to handle ${work}, vs. before automation (100)`,
-      lines: [{ name: 'cost per firm', color: INK, vals: data.map((d) => d.costIndex) }],
-      ref: optimum.costIndex,
-      zero: false,
-      aria: `Each firm's cost, indexed to 100 before automation; it falls to ${Math.round(
-        data[data.length - 1].costIndex,
-      )} as AI replaces wages. This cost saving is why firms automate.`,
+      title: 'Why each firm keeps automating',
+      sub: 'what it gains vs. the demand its own layoffs cost it (1/N)',
+      lines: [
+        { name: 'cost saved', color: INK, vals: data.map((d) => d.costSaved) },
+        { name: 'demand it loses', color: ACCENT, vals: data.map((d) => d.demandLost / n) },
+      ],
+      ref: null,
+      zero: true,
+      aria: `For one firm: the cost saved (${Math.round(
+        last.costSaved,
+      )}) far exceeds the slice of demand its own layoffs cost it (${Math.round(
+        last.demandLost / n,
+      )}), so automating always pays — the firm rides this gap up to the market level.`,
     },
     {
-      title: 'Cost saved vs. demand lost',
-      sub: 'the gap between them is the profit change',
+      title: 'Why everyone ends up worse',
+      sub: 'the same saving vs. the demand it actually loses (all firms)',
       lines: [
         { name: 'cost saved', color: INK, vals: data.map((d) => d.costSaved) },
         { name: 'demand lost', color: ACCENT, vals: data.map((d) => d.demandLost) },
       ],
       ref: null,
       zero: true,
-      aria: `Cost saved versus demand lost, in points of the baseline wage bill. The cost saving (${Math.round(
-        data[data.length - 1].costSaved,
-      )}) minus the demand lost (${Math.round(
-        data[data.length - 1].demandLost,
-      )}) is the profit change — positive but shrinking as firms over-automate past the optimum.`,
+      aria: `Across all firms: the same cost saving (${Math.round(
+        last.costSaved,
+      )}) now sits against the full demand each firm loses (${Math.round(
+        last.demandLost,
+      )}) — N times larger. The gap, the real profit change, shrinks as automation overshoots the optimum.`,
     },
   ];
 
   const sig =
-    data.length +
-    ':' +
-    data[data.length - 1].costIndex.toFixed(3) +
-    ':' +
-    data[data.length - 1].costSaved.toFixed(3) +
-    ':' +
-    data[data.length - 1].demandIndex.toFixed(3) +
-    ':' +
-    optimum.costIndex.toFixed(3);
+    data.length + ':' + last.costSaved.toFixed(3) + ':' + last.demandLost.toFixed(3) + ':' + n;
 
   // create once
   useEffect(() => {

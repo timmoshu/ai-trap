@@ -198,21 +198,20 @@ export function ModelApp() {
                 illustrative.
               </p>
 
-              <h3 className={styles.linkHeading}>Under the hood — how the pieces connect</h3>
+              <h3 className={styles.linkHeading}>
+                Why each firm over-automates — even though they all lose
+              </h3>
               <p className={styles.linkIntro}>
-                Two links the cascade hides: <em>why</em> a firm automates, and how the upside and
-                the downside <em>net out</em> into profit.
+                The same two forces — cost saved vs. demand lost — but a single firm counts only the
+                slice of lost demand its <em>own</em> layoffs cost it.
               </p>
-              <LinkagePanels
-                data={path}
-                optimum={optimum}
-                sector={makeReal ? getSector(sectorId) : undefined}
-              />
+              <LinkagePanels data={path} n={eff.N} />
               <p className={styles.caption}>
-                Each firm automates because it cuts their cost (left). But automation also destroys
-                demand, so they also lose revenue (right). Profit is the gap between the two —
-                widest at the optimum, and shrinking as firms over-automate. That gap never depends
-                on the demand <em>level</em>, which is why UBI or a profit tax don&apos;t move it.
+                Each firm pockets the whole cost saving but counts only <strong>1/N</strong> of the
+                demand its layoffs destroy — so for the firm, automating always pays, right up to
+                the market level (left). But every firm drains the <em>same</em> pool of demand, so
+                each actually loses <strong>N×</strong> more than it reckoned with (right). Add it
+                up and the savings stop covering the losses — that&apos;s the overshoot.
               </p>
             </>
           ) : (
