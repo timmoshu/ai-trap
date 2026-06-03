@@ -34,11 +34,13 @@ export function Slider({
   disabled,
 }: SliderProps) {
   const display = format ? format(value) : String(value);
+  // Filled track up to the thumb so the lever's position reads at a glance (esp. on touch).
+  const pct = max > min ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : 0;
   return (
     <div className={`${styles.row} ${disabled ? styles.disabledRow : ''}`}>
       <div className={styles.head}>
         <label htmlFor={id} className={styles.label}>
-          <span>{label}</span>
+          <span className={styles.labelText}>{label}</span>
           {symbol && <span className={styles.symbol}>{symbol}</span>}
           {illustrative && <span className={styles.tag}>illustrative</span>}
         </label>
@@ -50,6 +52,9 @@ export function Slider({
         id={id}
         type="range"
         className={styles.range}
+        style={{
+          background: `linear-gradient(to right, var(--accent) ${pct}%, var(--surface-2) ${pct}%)`,
+        }}
         min={min}
         max={max}
         step={step}

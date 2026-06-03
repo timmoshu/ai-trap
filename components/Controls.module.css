@@ -83,24 +83,31 @@
   line-height: 1.4;
 }
 
-/* Segmented control */
+/* Segmented control — hairline dividers via a 1px gap over the border-colored track */
 .seg {
   display: inline-flex;
+  flex-wrap: wrap;
+  gap: 1px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--border);
 }
 .segBtn {
   font: inherit;
   font-size: 13px;
   padding: var(--s2) var(--s4);
-  background: transparent;
+  background: var(--surface);
   border: none;
   color: var(--ink-2);
   cursor: pointer;
+  transition: color var(--motion-fast) var(--ease);
 }
-.segActive {
+.segBtn:hover {
+  color: var(--ink);
+}
+.segActive,
+.segActive:hover {
   background: var(--ink);
   color: var(--surface);
 }
@@ -231,8 +238,18 @@
 }
 
 @media (max-width: 768px) {
+  /* full-width segmented controls; 2 options share a row, 4 options wrap to a clean 2×2 */
+  .seg {
+    display: flex;
+    width: 100%;
+  }
   .segBtn {
+    flex: 1 1 40%;
     min-height: 44px;
-    padding: var(--s2) var(--s5);
+    padding: var(--s3);
+  }
+  .applyBtn,
+  .clearBtn {
+    min-height: 44px;
   }
 }

@@ -328,6 +328,19 @@
     grid-template-columns: 1fr;
   }
   .frame {
-    font-size: 17px;
+    font-size: 24px;
+  }
+  .subline {
+    font-size: 15px;
+  }
+  /* the over-automation chip becomes its own full-width row — it's the headline result */
+  .gap {
+    margin-left: 0;
+    flex: 1 1 100%;
+  }
+  .realToggle,
+  .sectorSelect,
+  .shareBtn {
+    min-height: 44px;
   }
 }
