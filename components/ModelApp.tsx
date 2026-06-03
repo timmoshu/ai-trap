@@ -272,7 +272,7 @@ export function ModelApp() {
               description={
                 scenario.wageRigid
                   ? "On: pay can't fall, so a laid-off worker can't re-price into a new job — they stay unemployed, and their lost wages are lost spending for everyone. That demand hole is the trap. Turn it off to see it vanish."
-                  : 'Off: if pay can fall, displaced workers accept lower pay and get re-hired — the labor market clears, so they keep earning and spending and there is no demand hole. The trap is fundamentally a sticky-wage problem.'
+                  : 'Off: wages adjust until displaced workers are re-absorbed into other work, so their income returns and the demand hole closes. This is the idealized full-reabsorption case (η = 100%) — re-hiring at lower pay restores only part of it, which is what the η slider sets.'
               }
               checked={scenario.wageRigid}
               onChange={(v) => update({ wageRigid: v })}
