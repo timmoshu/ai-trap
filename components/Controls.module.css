@@ -136,18 +136,51 @@
   padding: var(--s2) var(--s3);
 }
 
-/* Policy panel */
-.policy {
+/* Policy panel — interactive cards */
+.policyGrid {
   display: flex;
   flex-direction: column;
   gap: var(--s2);
 }
-.policyRow {
+.policyCard {
   display: grid;
-  grid-template-columns: 168px 1fr 56px;
+  grid-template-columns: 170px 1fr 46px;
   align-items: center;
   gap: var(--s3);
+  width: 100%;
+  font: inherit;
   font-size: 13px;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s2) var(--s3);
+  transition:
+    border-color var(--motion-fast) var(--ease),
+    background var(--motion-fast) var(--ease);
+}
+.policyCard:hover {
+  border-color: var(--accent);
+}
+.policyOn {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+.policyResult {
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.5;
+  margin: var(--s3) 0 0;
+  padding: var(--s3);
+  background: var(--surface-2);
+  border-radius: var(--radius);
+}
+@media (max-width: 560px) {
+  .policyCard {
+    grid-template-columns: 120px 1fr 40px;
+  }
 }
 .policyName {
   color: var(--ink);
