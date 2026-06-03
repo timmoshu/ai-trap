@@ -28,7 +28,7 @@ const OvershootHill = dynamic(() => import('./OvershootHill'), { ssr: false });
 
 function gapState(gap: number): { label: string; cls: string } {
   if (gap > 1e-6) return { label: 'the trap', cls: styles.trap };
-  if (gap < -1e-6) return { label: 'reversed — under-automation', cls: styles.reversed };
+  if (gap < -1e-6) return { label: 'reversed', cls: styles.reversed };
   return { label: 'the trap vanishes here', cls: styles.fix };
 }
 
