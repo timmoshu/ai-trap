@@ -4,7 +4,15 @@
  */
 import { describe, it, expect } from 'vitest';
 import type { Params } from './types';
-import { alphaNE, alphaCO, wedge, tauStar, ell } from './static';
+import {
+  alphaNE,
+  alphaCO,
+  wedge,
+  tauStar,
+  ell,
+  profitPerFirm,
+  profitPerFirmUnilateral,
+} from './static';
 import { solveTaxForOptimum } from './tax';
 
 const base: Params = { N: 4, c: 0.3, w: 1, k: 1, lambda: 0.5, eta: 0.3, A: 1, L: 1, mu: 0, tau: 0 };
@@ -35,6 +43,24 @@ describe('Gate-0 comparative statics', () => {
     const better = { ...base, eta: 1.5 };
     expect(ell(better)).toBeLessThan(0);
     expect(wedge(better)).toBeLessThan(0);
+  });
+
+  it("a single firm's profit peaks at alphaNE (right of the cooperative optimum)", () => {
+    // Equals symmetric per-firm profit when the firm matches its rivals.
+    expect(approx(profitPerFirmUnilateral(base, 0.4, 0.4), profitPerFirm(base, 0.4))).toBe(true);
+    // Scan the firm's own automation (rivals fixed at the optimum): the argmax is alphaNE.
+    let bestA = 0;
+    let bestP = -Infinity;
+    for (let i = 0; i <= 1000; i++) {
+      const a = i / 1000;
+      const p = profitPerFirmUnilateral(base, a, alphaCO(base));
+      if (p > bestP) {
+        bestP = p;
+        bestA = a;
+      }
+    }
+    expect(approx(bestA, alphaNE(base), 1e-3)).toBe(true);
+    expect(alphaNE(base)).toBeGreaterThan(alphaCO(base)); // the firm wants to over-automate
   });
 });
 

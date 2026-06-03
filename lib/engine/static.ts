@@ -64,6 +64,19 @@ export const profitPerFirm = (p: Params, a: number): number =>
 export const aggregateProfit = (p: Params, a: number): number => p.N * profitPerFirm(p, a);
 
 /**
+ * Profit of ONE firm that automates `alphaI` while its N-1 rivals stay symmetric at `aBar`.
+ * This is the firm's own incentive: it peaks at alphaI = (s - ell/N)/k = alphaNE — to the RIGHT of
+ * the cooperative optimum alphaCO = (s - ell)/k — because the firm captures the full cost saving s
+ * but bears only 1/N of the demand externality (ell/N vs. ell). That gap is exactly why competing
+ * firms over-automate. Equals profitPerFirm when alphaI = aBar (symmetric play).
+ */
+export const profitPerFirmUnilateral = (p: Params, alphaI: number, aBar: number): number => {
+  const D = p.A + p.lambda * p.w * p.L * (p.N - (1 - p.eta) * (alphaI + (p.N - 1) * aBar));
+  const cost = p.L * (alphaI * p.c + (1 - alphaI) * p.w) + (p.k / 2) * p.L * alphaI * alphaI;
+  return D / p.N - cost;
+};
+
+/**
  * Nash automation under a worker-equity share eps. The paper proves the wedge closes only at
  * eps = 1/lambda (which exceeds 1 when lambda < 1, so it is unreachable with eps <= 1).
  * This functional form reproduces that proven threshold: at eps = 0 it equals alphaNE; at

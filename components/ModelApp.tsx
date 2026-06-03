@@ -231,9 +231,13 @@ export function ModelApp() {
                 />
               </div>
               <p className={styles.caption}>
-                Total profit peaks at the level that&apos;s best for the economy; the free market
-                pushes past that peak and ends up with <em>less</em> profit. That overshoot is the
-                trap.
+                The dark line is every firm&apos;s profit if they <em>all</em> automate the same
+                amount — it peaks at the optimum. The blue line is <em>one</em> firm&apos;s profit
+                if its rivals hold there: it keeps climbing past the optimum, so each firm is
+                individually tempted to over-automate. When they all give in, they overshoot — and
+                the dark line shows they end up with <em>less</em>. (UBI or a profit tax shift these
+                curves up or down but don&apos;t move where they peak — which is why they don&apos;t
+                change automation.)
               </p>
             </>
           )}
