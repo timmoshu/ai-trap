@@ -14,8 +14,8 @@ const AXIS = '#6e6e66';
 // Calm, distinct tones for the four P&L slices.
 const C_WAGES = 'rgba(74,140,99,0.55)'; // wages saved — the upside (green)
 const C_AI = 'rgba(46,110,142,0.50)'; // AI running cost (blue)
-const C_TRANSFORM = 'rgba(192,138,62,0.58)'; // retooling — the convex brake (amber)
-const C_DEMAND = 'rgba(189,75,59,0.42)'; // demand this firm loses (clay)
+const C_TRANSFORM = 'rgba(214,168,38,0.66)'; // retooling — the convex brake (gold)
+const C_DEMAND = 'rgba(190,62,48,0.55)'; // demand this firm loses (red — the externality)
 const C_TAX = 'rgba(107,111,142,0.55)'; // automation tax (slate)
 
 /** Vertical dashed marker + label, drawn straight on the canvas (matches OvershootHill). */
