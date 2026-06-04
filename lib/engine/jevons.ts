@@ -13,6 +13,8 @@
  * Documented in _bmad-output/planning-artifacts/gate0-jevons-extension.md.
  */
 import type { Params } from './types';
+import { DYNAMIC_DEFAULTS } from './defaults';
+import type { DynamicConfig } from './dynamic';
 
 /** Competitive price relative to pre-automation (= 1 at alpha=0), falling as automation cuts unit cost. */
 const priceRatio = (p: Params, alpha: number): number => (p.w - alpha * (p.w - p.c)) / p.w;
@@ -35,3 +37,52 @@ export const jevonsThreshold = (p: Params, alpha: number): number => {
   if (alpha <= 1e-9) return p.w / s; // marginal threshold (limit as alpha -> 0)
   return Math.log(1 - alpha) / Math.log(priceRatio(p, alpha));
 };
+
+/** Output index (100 = before automation): elastic product demand expands as the price falls. */
+export const jevonsOutput = (p: Params, alpha: number, eps: number): number =>
+  Math.pow(priceRatio(p, alpha), -eps) * 100;
+
+/** Consumer spending index (100 = before): price * quantity = priceRatio^(1-eps). Flat at eps = 1. */
+export const jevonsSpending = (p: Params, alpha: number, eps: number): number =>
+  Math.pow(priceRatio(p, alpha), 1 - eps) * 100;
+
+/** One period of the Jevons cascade — every quantity indexed to 100 = before automation. */
+export interface JevonsPoint {
+  t: number;
+  automation: number; // alpha * 100
+  jobs: number; // (1-alpha) * priceRatio^(-eps) * 100  (the overlay; >100 = net job creation)
+  spending: number; // priceRatio^(1-eps) * 100
+  output: number; // priceRatio^(-eps) * 100
+}
+
+const jevonsPointAt = (p: Params, alpha: number, eps: number, t: number): JevonsPoint => ({
+  t,
+  automation: alpha * 100,
+  jobs: jevonsJobs(p, alpha, eps),
+  spending: jevonsSpending(p, alpha, eps),
+  output: jevonsOutput(p, alpha, eps),
+});
+
+/**
+ * Animate the Jevons cascade as firms ramp automation toward `target` (same illustrative path as the
+ * main model — alpha_t -> target at adjustmentSpeed). The overlay is static in alpha, so each period
+ * just reads the overlay at that period's alpha; the steady state is the overlay at `target`.
+ */
+export function simulateJevons(
+  p: Params,
+  target: number,
+  eps: number,
+  cfg: DynamicConfig = DYNAMIC_DEFAULTS,
+): JevonsPoint[] {
+  let alpha = 0;
+  const pts: JevonsPoint[] = [];
+  for (let t = 0; t < cfg.periods; t++) {
+    pts.push(jevonsPointAt(p, alpha, eps, t));
+    alpha += cfg.adjustmentSpeed * (target - alpha);
+  }
+  return pts;
+}
+
+/** The Jevons cascade outcome at a fixed automation level — used as the optimum (alphaCO) reference. */
+export const jevonsSteady = (p: Params, alpha: number, eps: number): JevonsPoint =>
+  jevonsPointAt(p, alpha, eps, -1);

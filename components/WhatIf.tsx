@@ -1,14 +1,22 @@
 'use client';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { DEFAULTS, alphaNE, alphaCO, jevonsJobs, jevonsThreshold } from '@/lib/engine';
+import {
+  DEFAULTS,
+  alphaNE,
+  alphaCO,
+  jevonsJobs,
+  jevonsThreshold,
+  simulateJevons,
+} from '@/lib/engine';
 import { Slider } from './Slider';
 import { Footer } from './Footer';
 import prose from './Prose.module.css';
+import model from './ModelApp.module.css';
 import styles from './WhatIf.module.css';
 
-const WhatIfChart = dynamic(() => import('./WhatIfChart'), { ssr: false });
+const JevonsCharts = dynamic(() => import('./JevonsCharts'), { ssr: false });
 
 /** Plain-language reading of the price-elasticity (eps): "demand grows +10*eps% per 10% price cut". */
 function describeElasticity(eps: number): string {
@@ -21,15 +29,19 @@ function describeElasticity(eps: number): string {
 }
 
 /**
- * The Phase-C "what-if" — BEYOND THE PAPER. Relaxes the fixed-output assumption with the Jevons /
- * output-expansion overlay (lib/engine/jevons.ts, verified in gate0-jevons-extension.md). Walled off
- * on its own /what-if route, with an explicit "illustrative extension, not the authors' result" banner.
+ * The Phase-C "what-if" — BEYOND THE PAPER. A mirror of the main dashboard (same readout + cascade),
+ * but the cascade runs the Jevons / output-expansion overlay (lib/engine/jevons.ts, verified in
+ * gate0-jevons-extension.md) instead of the paper's fixed-output rules, with one added lever: how
+ * much cheaper goods grow the market. The over-automation readout is unchanged — it's the paper's.
  */
 export function WhatIf() {
   const [eps, setEps] = useState(1);
   const p = DEFAULTS;
-  const aNE = alphaNE({ ...p, tau: 0 });
-  const aCO = alphaCO(p);
+  const aNE = alphaNE({ ...p, tau: 0 }); // market automation (the paper's trap, unchanged)
+  const aCO = alphaCO(p); // profit-optimum (the paper's, unchanged)
+  const gap = aNE - aCO;
+
+  const path = useMemo(() => simulateJevons(p, aNE, eps), [p, aNE, eps]);
   const jobs = jevonsJobs(p, aNE, eps);
   const thrMarket = jevonsThreshold(p, aNE);
   const thrOpt = jevonsThreshold(p, aCO);
@@ -51,19 +63,35 @@ export function WhatIf() {
 
       <div className={styles.body}>
         <div className={styles.banner}>
-          <strong>Beyond the paper.</strong> This page relaxes the paper&apos;s central assumption —
-          that output can&apos;t grow — to explore the Jevons / Jones counter-argument. It is an{' '}
-          <em>illustrative extension, not the authors&apos; result</em>: the paper deliberately
-          holds output fixed and is silent on this channel.
+          <strong>Beyond the paper.</strong> This is the same dashboard, with one assumption
+          relaxed: output can now grow. The over-automation on the left is still the paper&apos;s
+          result — but the cascade below runs the Jevons / Jones counter-argument. It is an{' '}
+          <em>illustrative extension, not the authors&apos; result</em>.
         </div>
 
         <h1 className={styles.h1}>What if cheaper goods grow the market?</h1>
         <p className={styles.lede}>
           In the paper, output is fixed, so every automated job is a lost job. But if automation
           makes goods <em>cheaper</em>, demand can expand — and if it expands faster than the
-          per-unit labor saving, automation ends up needing <em>more</em> workers, not fewer.
-          Whether that happens turns on one number: how much cheaper goods grow the market.
+          per-unit labor saving, automation ends up needing <em>more</em> workers, not fewer. Drag
+          the one lever and watch the same cascade flip.
         </p>
+
+        <div className={model.readout}>
+          <div className={model.metric}>
+            <span className={model.mLabel}>Market automation</span>
+            <span className={`${model.val} tabular`}>{pct(aNE)}%</span>
+          </div>
+          <div className={model.metric}>
+            <span className={model.mLabel}>Optimal level</span>
+            <span className={`${model.val} tabular`}>{pct(aCO)}%</span>
+          </div>
+          <div className={`${model.gap} ${model.trap}`}>
+            <span className={model.gapLabel}>Over-automation</span>
+            <span className={`${model.gapVal} tabular`}>{pct(gap)} pts</span>
+            <span className={model.gapState}>the trap</span>
+          </div>
+        </div>
 
         <Slider
           id="whatif-eps"
@@ -95,7 +123,7 @@ export function WhatIf() {
           </span>
         </div>
 
-        <WhatIfChart p={p} eps={eps} aNE={aNE} aCO={aCO} />
+        <JevonsCharts data={path} optAutomation={pct(aCO)} />
 
         <p className={styles.insight}>
           <strong>The trap raises the bar.</strong> At the profit-optimal {pct(aCO)}% you&apos;d

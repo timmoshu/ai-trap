@@ -5,7 +5,13 @@
  */
 import { describe, it, expect } from 'vitest';
 import type { Params } from './types';
-import { jevonsJobs, jevonsThreshold } from './jevons';
+import {
+  jevonsJobs,
+  jevonsThreshold,
+  jevonsOutput,
+  jevonsSpending,
+  simulateJevons,
+} from './jevons';
 import { alphaNE, alphaCO } from './static';
 
 const base: Params = { N: 4, c: 0.3, w: 1, k: 1, lambda: 0.5, eta: 0.3, A: 1, L: 1, mu: 0, tau: 0 };
@@ -59,5 +65,38 @@ describe('Jevons output-expansion overlay', () => {
     const cheap = jevonsThreshold({ ...base, c: 0.1 }, 0);
     const dear = jevonsThreshold({ ...base, c: 0.5 }, 0);
     expect(cheap).toBeLessThan(dear);
+  });
+
+  it('output expands with automation and elasticity; flat at eps=0 and alpha=0', () => {
+    expect(approx(jevonsOutput(base, 0, 2), 100)).toBe(true); // no automation -> no price cut
+    expect(approx(jevonsOutput(base, 0.6125, 0), 100)).toBe(true); // eps=0 -> demand can't move
+    expect(jevonsOutput(base, 0.6125, 2)).toBeGreaterThan(100); // elastic -> output grows
+  });
+
+  it('spending is flat at the unit-elastic case (eps=1) and identities hold', () => {
+    for (const a of ALPHAS) {
+      expect(approx(jevonsSpending(base, a, 1), 100)).toBe(true); // priceRatio^0 = 1
+      // jobs = (1-alpha) * output  (output already carries the x100 index)
+      expect(approx(jevonsJobs(base, a, 2), (1 - a) * jevonsOutput(base, a, 2), 1e-7)).toBe(true);
+    }
+  });
+
+  it('spending rises only when demand is elastic (eps>1), falls when inelastic', () => {
+    expect(jevonsSpending(base, 0.6125, 2)).toBeGreaterThan(100);
+    expect(jevonsSpending(base, 0.6125, 0.5)).toBeLessThan(100);
+  });
+
+  it('simulateJevons ramps from before-automation to the steady overlay at the target', () => {
+    const target = alphaNE(base);
+    const path = simulateJevons(base, target, 2);
+    expect(path.length).toBeGreaterThan(1);
+    // starts before automation: alpha=0 -> everything at 100
+    expect(approx(path[0].automation, 0)).toBe(true);
+    expect(approx(path[0].jobs, 100)).toBe(true);
+    expect(approx(path[0].output, 100)).toBe(true);
+    // settles at the overlay evaluated at the target
+    const end = path[path.length - 1];
+    expect(approx(end.jobs, jevonsJobs(base, end.automation / 100, 2), 1e-6)).toBe(true);
+    expect(end.automation).toBeGreaterThan(50); // ramped most of the way to ~61%
   });
 });
