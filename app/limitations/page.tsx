@@ -152,7 +152,9 @@ export default function LimitationsPage() {
       <p>
         We present our result as a <strong>transitional friction</strong>, not a refutation of that
         long-run reallocation. The model does not adjudicate which force wins; it shows you the dial
-        between them and lets you decide where you think the world sits.
+        between them and lets you decide where you think the world sits. You can also explore the
+        output-expansion (Jevons) side of that argument in the <a href="/what-if">what-if</a> — an
+        illustrative extension that relaxes the paper&apos;s fixed-output assumption.
       </p>
 
       <h2>Where this sits</h2>

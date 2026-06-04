@@ -1,0 +1,118 @@
+.body {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--s5) 0 var(--s7);
+}
+
+.banner {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  margin-bottom: var(--s6);
+}
+.banner strong {
+  color: var(--ink);
+}
+
+.h1 {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  line-height: 1.18;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  margin: 0 0 var(--s3);
+}
+.h1 em,
+.lede em,
+.insight em,
+.caveat em {
+  font-style: italic;
+}
+.lede {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: 0 0 var(--s5);
+}
+
+.verdict {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: var(--s3) var(--s4);
+  margin: var(--s5) 0 var(--s4);
+}
+.creates {
+  background: var(--fix-soft);
+  border-color: var(--fix);
+}
+.destroys {
+  background: var(--trap-soft);
+  border-color: var(--trap);
+}
+.verdictLead {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-3);
+}
+.verdictBig {
+  font-size: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+.creates .verdictBig {
+  color: var(--fix);
+}
+.destroys .verdictBig {
+  color: var(--trap);
+}
+.verdictUnit {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-3);
+}
+.verdictTag {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.creates .verdictTag {
+  color: var(--fix);
+}
+.destroys .verdictTag {
+  color: var(--trap);
+}
+
+.insight {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-2);
+  margin: var(--s5) 0 var(--s3);
+}
+.insight strong {
+  color: var(--ink);
+}
+.caveat {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin: 0;
+}
+
+@media (max-width: 680px) {
+  .h1 {
+    font-size: 24px;
+  }
+  .lede {
+    font-size: 15px;
+  }
+}

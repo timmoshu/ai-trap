@@ -124,6 +124,7 @@ export function ModelApp() {
         <nav className={styles.nav}>
           <Link href="/method">Method</Link>
           <Link href="/limitations">Limitations</Link>
+          <Link href="/what-if">What if?</Link>
           <button className={styles.shareBtn} onClick={share}>
             {copied ? 'Link copied ✓' : 'Share ⤴'}
           </button>

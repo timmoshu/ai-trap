@@ -21,6 +21,7 @@ export function ContentPage({
           <Link href="/">Model</Link>
           <Link href="/method">Method</Link>
           <Link href="/limitations">Limitations</Link>
+          <Link href="/what-if">What if?</Link>
         </nav>
       </header>
       <article className={styles.prose}>
