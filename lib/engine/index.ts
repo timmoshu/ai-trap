@@ -11,6 +11,7 @@ export * from './tax';
 export * from './dynamic';
 export * from './defaults';
 export * from './scenario-url';
+export * from './jevons';
 
 /** Convenience aggregator: all the headline static quantities for a parameter set. */
 export function computeStatic(p: Params): StaticResult {

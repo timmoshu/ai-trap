@@ -1,0 +1,37 @@
+/**
+ * Jevons / output-expansion overlay — the Phase-C "what-if" extension. EXPLICITLY BEYOND THE PAPER.
+ *
+ * The paper holds output FIXED (Y_i = L) — that fixed-output assumption is what creates the trap.
+ * This overlay relaxes it: if automation lowers the unit cost, competitive pricing passes that to a
+ * lower price, and price-elastic product demand EXPANDS output. Net employment is then the
+ * displacement force (1-alpha) against the output-expansion force (price drop)^elasticity.
+ *
+ * It is a LAYERED model, not a re-derived equilibrium: Layer 1 (the paper, verified) decides how
+ * much firms automate; this overlay only asks what elastic output does to employment at that level.
+ * The paper's closure (fixed output, demand-set price) and this one (elastic output, cost-set price)
+ * are mutually exclusive, so this does NOT reduce to the paper — it is a clearly-labeled what-if.
+ * Documented in _bmad-output/planning-artifacts/gate0-jevons-extension.md.
+ */
+import type { Params } from './types';
+
+/** Competitive price relative to pre-automation (= 1 at alpha=0), falling as automation cuts unit cost. */
+const priceRatio = (p: Params, alpha: number): number => (p.w - alpha * (p.w - p.c)) / p.w;
+
+/**
+ * Employment index (100 = pre-automation) under the Jevons overlay at automation `alpha` and product
+ * price-elasticity `eps`. = (1 - alpha) * priceRatio^(-eps) * 100. At eps = 0 this is the paper's
+ * fixed-output corner — pure displacement, (1 - alpha) * 100.
+ */
+export const jevonsJobs = (p: Params, alpha: number, eps: number): number =>
+  (1 - alpha) * Math.pow(priceRatio(p, alpha), -eps) * 100;
+
+/**
+ * The price-elasticity at which automation is employment-neutral at this `alpha` (jevonsJobs = 100):
+ * above it automation CREATES net jobs, below it destroys them. The marginal value (alpha -> 0) is
+ * w/s; it RISES with alpha, so over-automation makes the Jevons rescue harder.
+ */
+export const jevonsThreshold = (p: Params, alpha: number): number => {
+  const s = p.w - p.c;
+  if (alpha <= 1e-9) return p.w / s; // marginal threshold (limit as alpha -> 0)
+  return Math.log(1 - alpha) / Math.log(priceRatio(p, alpha));
+};
