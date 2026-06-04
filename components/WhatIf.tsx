@@ -10,6 +10,16 @@ import styles from './WhatIf.module.css';
 
 const WhatIfChart = dynamic(() => import('./WhatIfChart'), { ssr: false });
 
+/** Plain-language reading of the price-elasticity (eps): "demand grows +10*eps% per 10% price cut". */
+function describeElasticity(eps: number): string {
+  const g = Math.round(eps * 10);
+  if (eps < 0.05) return "Demand doesn't move — the paper's fixed-output world.";
+  if (eps < 0.7) return `Demand barely grows (+${g}%) — an inelastic staple, like bread or power.`;
+  if (eps < 1.3) return `Demand roughly keeps pace (+${g}%) — total spending holds about steady.`;
+  if (eps < 2.5) return `Demand outgrows the price cut (+${g}%) — an elastic good.`;
+  return `Demand explodes (+${g}%) — like a new cheap technology (computing, lighting, streaming).`;
+}
+
 /**
  * The Phase-C "what-if" — BEYOND THE PAPER. Relaxes the fixed-output assumption with the Jevons /
  * output-expansion overlay (lib/engine/jevons.ts, verified in gate0-jevons-extension.md). Walled off
@@ -57,20 +67,22 @@ export function WhatIf() {
 
         <Slider
           id="whatif-eps"
-          label="How much do cheaper goods grow the market?"
-          symbol="ε"
+          label="Demand growth when AI cuts the price 10%"
+          symbol=""
           value={eps}
           min={0}
           max={4}
-          step={0.05}
+          step={0.1}
           onChange={setEps}
-          format={(v) => v.toFixed(2)}
-          citation="Price-elasticity of demand. Above ~1 = elastic (new cheap tech like computing or lighting, where lower prices unlock big new demand). Below 1 = inelastic (staples). ε = 0 is the paper's fixed-output world."
+          format={(v) => `+${Math.round(v * 10)}%`}
+          citation="How much the market grows for every 10% automation knocks off the price. (Economists call this the price-elasticity of demand.)"
         />
+        <p className={styles.translate}>{describeElasticity(eps)}</p>
 
         <div className={`${styles.verdict} ${creates ? styles.creates : styles.destroys}`}>
           <span className={styles.verdictLead}>
-            At the market&apos;s {pct(aNE)}% automation, with ε = {eps.toFixed(2)}
+            At the market&apos;s {pct(aNE)}% automation, demand growing +{Math.round(eps * 10)}% per
+            10% price cut
           </span>
           <span className={styles.verdictBig}>
             {Math.round(jobs)}{' '}
@@ -78,8 +90,8 @@ export function WhatIf() {
           </span>
           <span className={styles.verdictTag}>
             {creates
-              ? `automation CREATES net jobs here — past the ε > ${thrMarket.toFixed(2)} break-even`
-              : `automation destroys net jobs here — break-even needs ε > ${thrMarket.toFixed(2)}`}
+              ? `automation CREATES net jobs here — past the break-even of +${Math.round(thrMarket * 10)}% demand per 10% price cut`
+              : `automation destroys net jobs here — break-even needs +${Math.round(thrMarket * 10)}% demand per 10% price cut`}
           </span>
         </div>
 
@@ -87,10 +99,11 @@ export function WhatIf() {
 
         <p className={styles.insight}>
           <strong>The trap raises the bar.</strong> At the profit-optimal {pct(aCO)}% you&apos;d
-          only need ε &gt; {thrOpt.toFixed(2)} to keep jobs whole; the market&apos;s overshoot to{' '}
-          {pct(aNE)}% pushes the requirement to ε &gt; {thrMarket.toFixed(2)}. So over-automation
-          doesn&apos;t just cost profit — it makes the Jevons rescue harder. (And cheaper AI cuts
-          both ways: it deepens the displacement <em>and</em> lowers the elasticity bar.)
+          only need demand to grow <strong>+{Math.round(thrOpt * 10)}%</strong> per 10% price cut to
+          keep jobs whole; the market&apos;s overshoot to {pct(aNE)}% pushes the bar to{' '}
+          <strong>+{Math.round(thrMarket * 10)}%</strong>. So over-automation doesn&apos;t just cost
+          profit — it makes the Jevons rescue harder. (And cheaper AI cuts both ways: it deepens the
+          displacement <em>and</em> lowers that bar.)
         </p>
         <p className={styles.caveat}>
           The optimistic &ldquo;productivity reallocates everyone&rdquo; story lives in the

@@ -41,6 +41,14 @@
   margin: 0 0 var(--s5);
 }
 
+.translate {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  font-weight: 500;
+  margin: var(--s2) 0 0;
+}
+
 .verdict {
   display: flex;
   flex-direction: column;
