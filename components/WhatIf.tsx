@@ -7,6 +7,7 @@ import {
   alphaNE,
   alphaCO,
   jevonsJobs,
+  jevonsOutput,
   jevonsThreshold,
   simulateJevons,
 } from '@/lib/engine';
@@ -47,6 +48,17 @@ export function WhatIf() {
   const thrOpt = jevonsThreshold(p, aCO);
   const creates = jobs >= 100;
   const pct = (x: number) => Math.round(x * 100);
+
+  // The break-even is pure arithmetic of the automation level: jobs = (1-alpha) * market, so
+  // full employment needs the market to grow to 1/(1-alpha). Elasticity only decides whether
+  // cheaper prices actually carry it that far (= the live output index).
+  const autoShare = pct(aNE); // 61 — share of work done by AI
+  const humanShare = pct(1 - aNE); // 39 — share still done by people
+  const breakevenOut = Math.round(100 / (1 - aNE)); // 258 — market size that rehires everyone
+  const breakevenMult = (1 / (1 - aNE)).toFixed(1); // 2.6×
+  const optMult = (1 / (1 - aCO)).toFixed(1); // 1.5× — far lower bar at the optimum
+  const outputNow = Math.round(jevonsOutput(p, aNE, eps)); // where cheaper prices carry the market
+  const jobsGap = Math.abs(Math.round(jobs) - 100);
 
   return (
     <div className={prose.page}>
@@ -109,29 +121,31 @@ export function WhatIf() {
 
         <div className={`${styles.verdict} ${creates ? styles.creates : styles.destroys}`}>
           <span className={styles.verdictLead}>
-            At the market&apos;s {pct(aNE)}% automation, demand growing +{Math.round(eps * 10)}% per
-            10% price cut
+            AI does {autoShare}% of the work, so the same goods need only {humanShare}% of the
+            workers. To rehire everyone, the market has to grow to {breakevenOut} (about{' '}
+            {breakevenMult}× today&apos;s).
           </span>
           <span className={styles.verdictBig}>
             {Math.round(jobs)}{' '}
-            <span className={styles.verdictUnit}>jobs vs. 100 before automation</span>
+            <span className={styles.verdictUnit}>jobs for every 100 before automation</span>
           </span>
           <span className={styles.verdictTag}>
             {creates
-              ? `automation CREATES net jobs here — past the break-even of +${Math.round(thrMarket * 10)}% demand per 10% price cut`
-              : `automation destroys net jobs here — break-even needs +${Math.round(thrMarket * 10)}% demand per 10% price cut`}
+              ? `Cheaper prices grow the market to ${outputNow} — past the ${breakevenOut} finish line — so automation adds ${jobsGap} jobs per 100.`
+              : `Cheaper prices grow the market to only ${outputNow}, short of ${breakevenOut} — so ${jobsGap} of every 100 jobs are gone.`}
           </span>
         </div>
 
         <JevonsCharts data={path} optAutomation={pct(aCO)} />
 
         <p className={styles.insight}>
-          <strong>The trap raises the bar.</strong> At the profit-optimal {pct(aCO)}% you&apos;d
-          only need demand to grow <strong>+{Math.round(thrOpt * 10)}%</strong> per 10% price cut to
-          keep jobs whole; the market&apos;s overshoot to {pct(aNE)}% pushes the bar to{' '}
-          <strong>+{Math.round(thrMarket * 10)}%</strong>. So over-automation doesn&apos;t just cost
-          profit — it makes the Jevons rescue harder. (And cheaper AI cuts both ways: it deepens the
-          displacement <em>and</em> lowers that bar.)
+          <strong>The trap raises the finish line.</strong> More automation moves the market size
+          you&apos;d need to rehire everyone. At the profit-optimal {pct(aCO)}%, the market need
+          only grow <strong>{optMult}×</strong>; the market&apos;s overshoot to {pct(aNE)}% pushes
+          it to <strong>{breakevenMult}×</strong> ({breakevenOut}). So over-automation doesn&apos;t
+          just cost profit — it makes the Jevons rescue harder, because cheaper prices now have a
+          taller mountain to climb. (In elasticity terms, the bar rises from +
+          {Math.round(thrOpt * 10)}% to +{Math.round(thrMarket * 10)}% demand per 10% price cut.)
         </p>
         <p className={styles.caveat}>
           The optimistic &ldquo;productivity reallocates everyone&rdquo; story lives in the

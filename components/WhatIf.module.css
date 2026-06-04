@@ -67,10 +67,10 @@
   border-color: var(--trap);
 }
 .verdictLead {
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ink-3);
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  margin-bottom: 2px;
 }
 .verdictBig {
   font-size: 26px;
