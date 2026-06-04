@@ -22,7 +22,7 @@ import { SECTORS, DEFAULT_SECTOR, getSector } from '@/lib/sectors';
 import styles from './ModelApp.module.css';
 
 const DriverCharts = dynamic(() => import('./DriverCharts'), { ssr: false });
-const FirstMoverChart = dynamic(() => import('./FirstMoverChart'), { ssr: false });
+const ProfitAnatomy = dynamic(() => import('./ProfitAnatomy'), { ssr: false });
 const OvershootHill = dynamic(() => import('./OvershootHill'), { ssr: false });
 
 function gapState(gap: number): { label: string; cls: string } {
@@ -36,6 +36,9 @@ export function ModelApp() {
   const [copied, setCopied] = useState(false);
   const [makeReal, setMakeReal] = useState(false);
   const [sectorId, setSectorId] = useState(DEFAULT_SECTOR.id);
+  // Controlled so the per-firm charts mount only once the accordion is open (and its cells have a
+  // real width) — uPlot cannot size itself correctly while inside a collapsed <details>.
+  const [raceOpen, setRaceOpen] = useState(false);
 
   const eff = useMemo(() => effectiveParams(scenario), [scenario]);
   const stat = useMemo(() => computeStatic(eff), [eff]);
@@ -46,6 +49,13 @@ export function ModelApp() {
   const target = useMemo(() => realizedAlpha(scenario), [scenario]);
   // Structural free-market automation, for the big-picture marker (independent of policy/tax).
   const alphaNEfree = useMemo(() => alphaNE({ ...eff, tau: 0 }), [eff]);
+  // Params for the per-firm P&L deep-dive: only the explicit automation tax shifts the firm's own
+  // profit peak; the other regimes work through a different channel, so the accordion shows the
+  // underlying free-market race (tau forced to 0 unless the tax regime is active).
+  const anatomyParams = useMemo(
+    () => ({ ...eff, tau: scenario.regime === 'tax' ? scenario.tau : 0 }),
+    [eff, scenario.regime, scenario.tau],
+  );
 
   // Realized over-automation gap: closes to ~0 under the tax or full bargaining, negative when η > 100%.
   const gap = target - stat.alphaCO;
@@ -213,22 +223,30 @@ export function ModelApp() {
                 illustrative.
               </p>
 
-              <h3 className={styles.linkHeading}>The race — why no firm can stop</h3>
-              <p className={styles.linkIntro}>
-                The same interpolation, from <em>one</em> firm&apos;s point of view: its profit if
-                it automates <em>first</em> vs. if it <em>holds out</em>, as the other firms pile
-                in.
-              </p>
-              <FirstMoverChart data={path} optimum={optimum} />
-              <p className={styles.caption}>
-                Move first and your profit jumps — above even what everyone-cooperating would earn
-                (dashed). That prize is why every firm races in. But each firm&apos;s layoffs drain
-                the <em>shared</em> demand, so as they all pile in the top line sinks <em>below</em>{' '}
-                the dashed line — they&apos;ve automated into <em>less</em>. And &ldquo;hold
-                out&rdquo; always trails &ldquo;move first&rdquo; by the same fixed amount, no
-                matter how many rivals have gone — so no firm can afford to stop. That&apos;s the
-                trap.
-              </p>
+              <details
+                className={styles.raceAccordion}
+                open={raceOpen}
+                onToggle={(e) => setRaceOpen(e.currentTarget.open)}
+              >
+                <summary className={styles.raceSummary}>
+                  <span>The race — why a firm stops where it does</span>
+                  <span className={styles.raceHint}>open the per-firm view</span>
+                </summary>
+                <p className={styles.linkIntro}>
+                  Zoom into <em>one</em> firm&apos;s books. As it automates more, it saves wages but
+                  pays for AI and a one-off retooling cost that climbs ever steeper. Profit rises,
+                  peaks, then falls — and the peak is where each firm stops.
+                </p>
+                {raceOpen && <ProfitAnatomy params={anatomyParams} alphaCO={stat.alphaCO} />}
+                <p className={styles.caption}>
+                  The firm stops at the peak (red) — but that&apos;s <em>past</em> the joint optimum
+                  (green). Why? When it lays workers off it destroys spending, yet it only books its
+                  own <em>one-in-{eff.N}</em> share of that lost demand (the thin clay slice); the
+                  rest lands on rivals, unpriced. So its private peak sits to the right of where
+                  combined profit is highest — the over-automation. Turn on the automation tax and
+                  the &ldquo;tax&rdquo; slice pushes the peak back left, toward the optimum.
+                </p>
+              </details>
             </>
           ) : (
             <>

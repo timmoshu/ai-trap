@@ -251,6 +251,48 @@
   margin: 0 0 var(--s4);
 }
 
+.raceAccordion {
+  margin-top: var(--s5);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--border);
+}
+.raceSummary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+  cursor: pointer;
+  list-style: none;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.raceSummary::-webkit-details-marker {
+  display: none;
+}
+.raceSummary > span:first-child::before {
+  content: '▸';
+  display: inline-block;
+  margin-right: var(--s2);
+  color: var(--ink-3);
+  transition: transform 0.15s ease;
+}
+.raceAccordion[open] .raceSummary > span:first-child::before {
+  transform: rotate(90deg);
+}
+.raceHint {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.raceAccordion[open] .raceHint {
+  display: none;
+}
+.raceAccordion[open] .raceSummary {
+  margin-bottom: var(--s4);
+}
+
 .controls {
   display: flex;
   flex-direction: column;

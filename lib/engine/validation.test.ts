@@ -18,6 +18,11 @@ import {
   alphaCoalition,
   tauStar,
   wedge,
+  firmPnL,
+  profitPerFirmUnilateral,
+  clamp,
+  s as costSaving,
+  ell as externality,
 } from './static';
 import { steadyMetrics } from './dynamic';
 
@@ -165,5 +170,40 @@ describe('math validation sweep', () => {
       if (p.eta <= 1) expect(wedge(p)).toBeGreaterThanOrEqual(-1e-12);
       else expect(wedge(p)).toBeLessThanOrEqual(1e-12);
     }
+  });
+
+  it('firmPnL decomposes profitPerFirmUnilateral exactly (tax off) and its parts sum back', () => {
+    for (const p of grid)
+      for (const aI of ALPHAS)
+        for (const aBar of ALPHAS) {
+          const pnl = firmPnL(p, aI, aBar);
+          // tax off: the opened-up profit equals the verified unilateral profit
+          expect(approx(pnl.profit, profitPerFirmUnilateral(p, aI, aBar), 1e-12)).toBe(true);
+          // the parts reconstruct the profit (no slice lost or double-counted)
+          expect(
+            approx(pnl.profit, pnl.revenue - pnl.wages - pnl.ai - pnl.transform - pnl.tax),
+          ).toBe(true);
+          expect(pnl.tax).toBe(0); // grid has tau = 0
+        }
+  });
+
+  it("firmPnL's own-profit peak (in alphaI) lands on the taxed Nash (s - tau - ell/N)/k", () => {
+    for (const p of grid)
+      for (const tau of [0, 0.1, 0.3]) {
+        const pt = { ...p, tau };
+        const peak = clamp((costSaving(pt) - tau - externality(pt) / pt.N) / pt.k);
+        // numeric argmax over a fine grid of own automation (rivals held at 0)
+        let best = 0;
+        let bestA = 0;
+        for (let i = 0; i <= 1000; i++) {
+          const a = i / 1000;
+          const prof = firmPnL(pt, a, 0).profit;
+          if (prof > best || i === 0) {
+            best = prof;
+            bestA = a;
+          }
+        }
+        expect(Math.abs(bestA - peak)).toBeLessThanOrEqual(2e-3);
+      }
   });
 });

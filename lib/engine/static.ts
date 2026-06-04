@@ -76,6 +76,48 @@ export const profitPerFirmUnilateral = (p: Params, alphaI: number, aBar: number)
   return D / p.N - cost;
 };
 
+/** One firm's profit-and-loss, broken into the parts the lay reader cares about. */
+export interface FirmPnL {
+  alpha: number;
+  /** revenue P·q = this firm's 1/N slice of aggregate demand (output is fixed, so this IS price). */
+  revenue: number;
+  /** wages still on the payroll = (1 - alpha)·w·L. */
+  wages: number;
+  /** AI running cost = alpha·c·L. */
+  ai: number;
+  /** one-off retooling / transformation cost = (k/2)·alpha²·L (the convex brake that ends the race). */
+  transform: number;
+  /** per-task automation tax remitted = tau·alpha·L (0 when the tax is off). */
+  tax: number;
+  /** revenue − wages − ai − transform − tax. Peaks (in alpha) at the taxed Nash (s − tau − ell/N)/k. */
+  profit: number;
+}
+
+/**
+ * Decompose ONE firm's profit at its own automation `alphaI`, with rivals symmetric at `aBar`.
+ * This is `profitPerFirmUnilateral` opened up into its revenue and cost parts, PLUS the per-task
+ * tax that the unilateral helper omits (the tax shifts the firm's own profit peak left toward the
+ * optimum — that is the Pigouvian fix seen from inside the firm's books). With tau = 0 the `profit`
+ * field equals profitPerFirmUnilateral exactly (asserted in tests).
+ */
+export const firmPnL = (p: Params, alphaI: number, aBar: number): FirmPnL => {
+  const D = p.A + p.lambda * p.w * p.L * (p.N - (1 - p.eta) * (alphaI + (p.N - 1) * aBar));
+  const revenue = D / p.N;
+  const wages = (1 - alphaI) * p.w * p.L;
+  const ai = alphaI * p.c * p.L;
+  const transform = (p.k / 2) * alphaI * alphaI * p.L;
+  const tax = (p.tau ?? 0) * alphaI * p.L;
+  return {
+    alpha: alphaI,
+    revenue,
+    wages,
+    ai,
+    transform,
+    tax,
+    profit: revenue - wages - ai - transform - tax,
+  };
+};
+
 /**
  * Nash automation under a worker-equity share eps. The paper proves the wedge closes only at
  * eps = 1/lambda (which exceeds 1 when lambda < 1, so it is unreachable with eps <= 1).
