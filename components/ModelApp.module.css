@@ -96,13 +96,24 @@
   align-items: start;
 }
 
-/* On wide screens each column scrolls within the viewport (sleek scrollbars are global). */
+/* On wide screens the model is a fixed-height app shell: the page (and its background) stays put,
+   and ONLY the two columns scroll. Scoped to .app so the /method and /limitations pages still
+   scroll normally. */
 @media (min-width: 881px) {
+  .app {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding-bottom: var(--s4);
+  }
+  .grid {
+    flex: 1 1 auto;
+    min-height: 0;
+  }
   .stage,
   .controls {
-    position: sticky;
-    top: var(--s4);
-    max-height: calc(100vh - var(--s7));
+    max-height: 100%;
     overflow-y: auto;
     overscroll-behavior: contain;
   }
