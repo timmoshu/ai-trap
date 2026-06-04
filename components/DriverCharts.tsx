@@ -93,6 +93,8 @@ export function DriverCharts({
   const raf = useRef<number | null>(null);
 
   const xs = data.map((d) => d.t);
+  // shorter charts on phones so more of the cascade fits on one screen
+  const H = typeof window !== 'undefined' && window.innerWidth <= 680 ? 116 : 148;
   const sig =
     data.length +
     ':' +
@@ -113,7 +115,7 @@ export function DriverCharts({
       ranges.current[i] = rangeFor(cur, optimum[m.key], m.key);
       const opts: uPlot.Options = {
         width: el.clientWidth,
-        height: 148,
+        height: H,
         padding: [10, 8, 2, 4],
         legend: { show: false },
         cursor: { show: true, x: true, y: false, points: { show: false } },
@@ -144,7 +146,7 @@ export function DriverCharts({
       METRICS.forEach((_m, i) => {
         const el = els.current[i];
         const u = plots.current[i];
-        if (el && u) u.setSize({ width: el.clientWidth, height: 148 });
+        if (el && u) u.setSize({ width: el.clientWidth, height: H });
       });
     });
     els.current.forEach((el) => el && ro.observe(el));

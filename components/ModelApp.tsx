@@ -271,7 +271,12 @@ export function ModelApp() {
       </div>
 
       <MobileControls readout={renderReadout()}>
-        <ControlsContent scenario={scenario} update={update} optimumTax={stat.tauStarExact} />
+        <ControlsContent
+          scenario={scenario}
+          update={update}
+          optimumTax={stat.tauStarExact}
+          compact
+        />
       </MobileControls>
 
       <Footer />

@@ -47,6 +47,7 @@ export function LinkagePanels({ data, n }: { data: DynamicPoint[]; n: number }) 
 
   const xs = data.map((d) => d.t);
   const last = data[data.length - 1];
+  const H = typeof window !== 'undefined' && window.innerWidth <= 680 ? 118 : 150;
 
   // The two panels are the SAME two forces (cost saved vs. demand lost). The only difference is how
   // much demand-loss each line counts: a single firm counts only the 1/N slice its own layoffs cost
@@ -108,7 +109,7 @@ export function LinkagePanels({ data, n }: { data: DynamicPoint[]; n: number }) 
       }
       const opts: uPlot.Options = {
         width: el.clientWidth,
-        height: 150,
+        height: H,
         padding: [10, 8, 2, 4],
         legend: { show: false },
         cursor: { show: true, x: true, y: false, points: { show: false } },
@@ -138,7 +139,7 @@ export function LinkagePanels({ data, n }: { data: DynamicPoint[]; n: number }) 
       panels.forEach((_p, i) => {
         const el = els.current[i];
         const u = plots.current[i];
-        if (el && u) u.setSize({ width: el.clientWidth, height: 150 });
+        if (el && u) u.setSize({ width: el.clientWidth, height: H });
       });
     });
     els.current.forEach((el) => el && ro.observe(el));

@@ -16,6 +16,8 @@ export interface SliderProps {
   /** optional marker value (e.g. a threshold) shown as a tick label */
   hint?: string;
   disabled?: boolean;
+  /** compact mode (mobile drawer): hide the long citation, keep the short hint. */
+  compact?: boolean;
 }
 
 export function Slider({
@@ -32,7 +34,10 @@ export function Slider({
   illustrative,
   hint,
   disabled,
+  compact,
 }: SliderProps) {
+  const showCitation = citation && !compact;
+  const showHelp = Boolean(hint || showCitation);
   const display = format ? format(value) : String(value);
   // Filled track up to the thumb so the lever's position reads at a glance (esp. on touch).
   const pct = max > min ? Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)) : 0;
@@ -62,12 +67,12 @@ export function Slider({
         disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
         aria-valuetext={display}
-        aria-describedby={citation || hint ? `${id}-cite` : undefined}
+        aria-describedby={showHelp ? `${id}-cite` : undefined}
       />
-      {(citation || hint) && (
+      {showHelp && (
         <p id={`${id}-cite`} className={styles.cite}>
           {hint && <span className={styles.hint}>{hint}</span>}
-          {citation}
+          {showCitation && citation}
         </p>
       )}
     </div>

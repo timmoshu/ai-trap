@@ -110,10 +110,11 @@
   cursor: not-allowed;
 }
 
-/* larger thumbs + thicker track + more breathing room for touch (WCAG 2.5.8) */
+/* larger thumbs + thicker track for touch (WCAG 2.5.8); compact rows + tighter help text */
 @media (pointer: coarse) {
   .row {
-    padding: var(--s4) 0;
+    padding: var(--s3) 0;
+    gap: 6px;
   }
   .range {
     height: 8px;
@@ -125,5 +126,9 @@
   .range::-moz-range-thumb {
     width: 26px;
     height: 26px;
+  }
+  .cite {
+    font-size: 11px;
+    line-height: 1.35;
   }
 }

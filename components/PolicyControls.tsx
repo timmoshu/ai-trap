@@ -21,10 +21,12 @@ export function PolicyControls({
   scenario,
   update,
   optimumTax,
+  compact,
 }: {
   scenario: Scenario;
   update: (patch: Partial<Scenario>) => void;
   optimumTax: number;
+  compact?: boolean;
 }) {
   const regime = scenario.regime;
   return (
@@ -47,6 +49,7 @@ export function PolicyControls({
           onChange={(v) => update({ A: v })}
           format={(v) => v.toFixed(1)}
           citation="Raises autonomous demand. Cushions the spending dip — but cancels from the firm's automation decision, so automation never moves."
+          compact={compact}
         />
         <Slider
           id="pol-t"
@@ -59,6 +62,7 @@ export function PolicyControls({
           onChange={(v) => update({ t: v })}
           format={(v) => `${Math.round(v * 100)}%`}
           citation="Scales every firm's profit by (1−t). Takes a share of the profit, but the automation decision is unchanged."
+          compact={compact}
         />
       </div>
 
@@ -94,6 +98,7 @@ export function PolicyControls({
               onChange={(v) => update({ tau: v })}
               format={(v) => v.toFixed(2)}
               citation="A per-task tax on automation. Unlike the others, this changes the firm's marginal decision — it pulls automation back toward the optimum."
+              compact={compact}
             />
             <div className={styles.taxRow}>
               <button
@@ -129,6 +134,7 @@ export function PolicyControls({
             onChange={(v) => update({ eps: v })}
             format={(v) => `${Math.round(v * 100)}%`}
             citation="Workers get a share of profit, internalizing part of the externality. It only fully closes the gap at ε = 1/λ — which exceeds 100% when λ < 1, so it can't get there. (Illustrative.)"
+            compact={compact}
           />
         )}
 
@@ -144,6 +150,7 @@ export function PolicyControls({
             onChange={(v) => update({ M: v })}
             format={(v) => `${Math.round(v)} of ${scenario.N}`}
             citation="A coalition of M firms internalizes the demand its layoffs destroy. Only the full coalition (M = N) reaches the optimum."
+            compact={compact}
           />
         )}
       </div>

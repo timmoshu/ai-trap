@@ -16,14 +16,16 @@ export function ControlsContent({
   scenario,
   update,
   optimumTax,
+  compact,
 }: {
   scenario: Scenario;
   update: (patch: Partial<Scenario>) => void;
   optimumTax: number;
+  compact?: boolean;
 }) {
   return (
     <>
-      <ParameterPanel scenario={scenario} update={update} />
+      <ParameterPanel scenario={scenario} update={update} compact={compact} />
 
       <section className={panel.panel}>
         <h2 className={panel.title}>Assumption you can switch off</h2>
@@ -40,7 +42,12 @@ export function ControlsContent({
         />
       </section>
 
-      <PolicyControls scenario={scenario} update={update} optimumTax={optimumTax} />
+      <PolicyControls
+        scenario={scenario}
+        update={update}
+        optimumTax={optimumTax}
+        compact={compact}
+      />
 
       <details className={styles.advanced}>
         <summary>Advanced — speed of the transition (illustrative)</summary>
@@ -57,6 +64,7 @@ export function ControlsContent({
             format={(v) => v.toFixed(2)}
             illustrative
             citation="Pace of the change only — the end point (the paper's equilibrium) is unchanged."
+            compact={compact}
           />
           <Slider
             id="dyn-reab"
@@ -70,6 +78,7 @@ export function ControlsContent({
             format={(v) => v.toFixed(2)}
             illustrative
             citation="Pace of re-hiring only — slower re-hiring deepens the dip but the end point is unchanged."
+            compact={compact}
           />
         </div>
       </details>

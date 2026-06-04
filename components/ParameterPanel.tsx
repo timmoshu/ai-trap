@@ -14,9 +14,11 @@ const fmt: Record<string, (v: number) => string> = {
 export function ParameterPanel({
   scenario,
   update,
+  compact,
 }: {
   scenario: Scenario;
   update: (patch: Partial<Scenario>) => void;
+  compact?: boolean;
 }) {
   const structural = PARAM_META.filter((m) => m.key !== 'tau');
   // Restore the paper's illustrative baseline — every model param, policy, and animation speed —
@@ -54,6 +56,7 @@ export function ParameterPanel({
             hint={hint}
             illustrative={m.illustrative}
             disabled={etaPinned}
+            compact={compact}
           />
         );
       })}

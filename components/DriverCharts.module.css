@@ -101,5 +101,17 @@
 @media (max-width: 680px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: var(--s3);
+  }
+  .cell {
+    padding: var(--s2) var(--s3);
+  }
+  .now {
+    font-size: 16px;
+  }
+  .legend {
+    gap: var(--s3);
+    margin-bottom: var(--s2);
+    font-size: 11px;
   }
 }

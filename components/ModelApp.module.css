@@ -326,25 +326,59 @@
 @media (max-width: 880px) {
   .grid {
     grid-template-columns: 1fr;
+    gap: var(--s4);
   }
   /* the aside is replaced by the controls drawer on mobile */
   .controls {
     display: none;
   }
-  /* leave clearance for the floating "Adjust the model" button */
+  /* tighter page gutters + clearance for the floating "Adjust the model" button */
   .app {
-    padding-bottom: 92px;
+    padding: var(--s3) var(--s3) 88px;
+  }
+  /* compact hero so the dashboard is visible without a long scroll */
+  .attribution {
+    font-size: 12px;
+    margin: var(--s4) 0 var(--s2);
   }
   .frame {
-    font-size: 24px;
+    font-size: 21px;
+    line-height: 1.2;
+    margin-bottom: var(--s2);
   }
   .subline {
-    font-size: 15px;
+    font-size: 13.5px;
+    line-height: 1.45;
+    margin-bottom: var(--s4);
+  }
+  .stage {
+    padding: var(--s4) var(--s3);
+  }
+  /* compact readout */
+  .readout {
+    gap: var(--s3) var(--s4);
+    margin-bottom: var(--s4);
+    padding-bottom: var(--s3);
+  }
+  .val {
+    font-size: 18px;
   }
   /* the over-automation chip becomes its own full-width row — it's the headline result */
   .gap {
     margin-left: 0;
     flex: 1 1 100%;
+    padding: var(--s2) var(--s3);
+  }
+  .gapVal {
+    font-size: 18px;
+  }
+  .viewRow {
+    margin-bottom: var(--s3);
+  }
+  .linkHeading {
+    font-size: 14px;
+    margin-top: var(--s4);
+    padding-top: var(--s3);
   }
   .realToggle,
   .sectorSelect,
