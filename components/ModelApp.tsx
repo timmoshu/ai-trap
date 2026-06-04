@@ -22,7 +22,7 @@ import { SECTORS, DEFAULT_SECTOR, getSector } from '@/lib/sectors';
 import styles from './ModelApp.module.css';
 
 const DriverCharts = dynamic(() => import('./DriverCharts'), { ssr: false });
-const LinkagePanels = dynamic(() => import('./LinkagePanels'), { ssr: false });
+const FirstMoverChart = dynamic(() => import('./FirstMoverChart'), { ssr: false });
 const OvershootHill = dynamic(() => import('./OvershootHill'), { ssr: false });
 
 function gapState(gap: number): { label: string; cls: string } {
@@ -210,21 +210,21 @@ export function ModelApp() {
                 illustrative.
               </p>
 
-              <h3 className={styles.linkHeading}>
-                Why each firm over-automates — even though they all lose
-              </h3>
+              <h3 className={styles.linkHeading}>The race — why no firm can stop</h3>
               <p className={styles.linkIntro}>
-                The same two forces — cost saved vs. demand lost — but a single firm counts only the
-                slice of lost demand its <em>own</em> layoffs cost it.
+                The same interpolation, from <em>one</em> firm&apos;s point of view: its profit if
+                it automates <em>first</em> vs. if it <em>holds out</em>, as the other firms pile
+                in.
               </p>
-              <LinkagePanels data={path} n={eff.N} />
+              <FirstMoverChart data={path} optimum={optimum} />
               <p className={styles.caption}>
-                Each firm pockets the whole cost saving but counts only <strong>1/N</strong> of the
-                demand its layoffs destroy — so for the firm, automating always pays, right up to
-                the market level (left). But every firm drains the <em>same</em> pool of demand, so
-                each actually loses <strong>N×</strong> more than it reckoned with (right). Add it
-                up and the extra savings no longer cover the extra losses — so total profit slips
-                below the optimum. That&apos;s the overshoot.
+                Move first and your profit jumps — above even what everyone-cooperating would earn
+                (dashed). That prize is why every firm races in. But each firm&apos;s layoffs drain
+                the <em>shared</em> demand, so as they all pile in the top line sinks <em>below</em>{' '}
+                the dashed line — they&apos;ve automated into <em>less</em>. And &ldquo;hold
+                out&rdquo; always trails &ldquo;move first&rdquo; by the same fixed amount, no
+                matter how many rivals have gone — so no firm can afford to stop. That&apos;s the
+                trap.
               </p>
             </>
           ) : (

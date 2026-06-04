@@ -61,4 +61,8 @@ export interface DynamicPoint {
   costSaved: number;
   /** demand the layoffs remove, in points of the baseline wage bill (the automation downside). A-independent. */
   demandLost: number;
+  /** ONE firm's profit (indexed, 100 = before automation) if it automates first while rivals catch up. */
+  profitMover: number;
+  /** ONE firm's profit if it holds out at zero automation while rivals automate — the laggard line. */
+  profitHoldout: number;
 }

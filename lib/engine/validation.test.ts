@@ -111,6 +111,23 @@ describe('math validation sweep', () => {
       }
   });
 
+  it('the first-mover lines behave: mover == aggregate profit at equilibrium, and beats holding out', () => {
+    for (const p of grid)
+      for (const a of ALPHAS) {
+        const m = steadyMetrics(p, a);
+        // At the symmetric equilibrium (you move like everyone) the first-mover line IS the
+        // per-firm aggregate profit, so it must equal the profitIndex.
+        expect(approx(m.profitMover, m.profitIndex, 1e-9)).toBe(true);
+        // Automating (mover) beats holding out — the dominant strategy — anywhere up to the firm's
+        // own best response alphaNE (which is exactly where the realized target ever sits), given a
+        // real cost saving and a non-negative externality. (Past 2*alphaNE it can flip, which the
+        // chart never reaches.)
+        if (p.w - p.c > 0 && p.eta <= 1 && a <= alphaNE(p) + 1e-9) {
+          expect(m.profitMover).toBeGreaterThanOrEqual(m.profitHoldout - 1e-9);
+        }
+      }
+  });
+
   it('every display field equals an independent first-principles recompute', () => {
     for (const p of grid)
       for (const a of ALPHAS) {

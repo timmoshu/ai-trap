@@ -12,7 +12,7 @@
  * path illustrative."
  */
 import type { DynamicPoint, Params } from './types';
-import { alphaNE, aggregateProfit } from './static';
+import { alphaNE, aggregateProfit, profitPerFirm, profitPerFirmUnilateral } from './static';
 import { DYNAMIC_DEFAULTS } from './defaults';
 
 export interface DynamicConfig {
@@ -46,6 +46,10 @@ const costSavedVsBase = (p: Params, a: number): number =>
 /** Demand the layoffs remove, as points of the baseline wage bill (the downside). A-independent. */
 const demandLostVsBase = (p: Params, netDisplaced: number): number => p.lambda * netDisplaced * 100;
 
+/** Index ONE firm's profit to before automation = 100 (per-firm wage bill base; capital tax applied). */
+const perFirmProfitIndex = (p: Params, profit: number): number =>
+  100 + ((1 - (p.t ?? 0)) * (profit - profitPerFirm(p, 0)) * 100) / (p.w * p.L);
+
 /** Simulate the cascade as firms move automation toward `target`. */
 export function simulateToTarget(
   p: Params,
@@ -73,6 +77,9 @@ export function simulateToTarget(
       costIndex: costIndexVsBase(p, alpha),
       costSaved: costSavedVsBase(p, alpha),
       demandLost: demandLostVsBase(p, netDisplaced),
+      // You moved first (at `target`) or held out (at 0) while rivals sit at the current `alpha`.
+      profitMover: perFirmProfitIndex(p, profitPerFirmUnilateral(p, target, alpha)),
+      profitHoldout: perFirmProfitIndex(p, profitPerFirmUnilateral(p, 0, alpha)),
     });
     alpha += cfg.adjustmentSpeed * (target - alpha);
     g += cfg.reabsorptionRate * (1 - g);
@@ -99,5 +106,7 @@ export function steadyMetrics(p: Params, target: number): DynamicPoint {
     costIndex: costIndexVsBase(p, target),
     costSaved: costSavedVsBase(p, target),
     demandLost: demandLostVsBase(p, netDisplaced),
+    profitMover: perFirmProfitIndex(p, profitPerFirmUnilateral(p, target, target)),
+    profitHoldout: perFirmProfitIndex(p, profitPerFirmUnilateral(p, 0, target)),
   };
 }
