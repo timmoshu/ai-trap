@@ -17,6 +17,7 @@ import model from './ModelApp.module.css';
 import styles from './WhatIf.module.css';
 
 const JevonsCharts = dynamic(() => import('./JevonsCharts'), { ssr: false });
+const JevonsTransition = dynamic(() => import('./JevonsTransition'), { ssr: false });
 
 /**
  * The lever is a market size, but its *meaning* is the underlying price-sensitivity of demand
@@ -151,6 +152,8 @@ export function WhatIf() {
         </div>
 
         <JevonsCharts data={path} optAutomation={pct(aCO)} />
+
+        <JevonsTransition p={p} target={aNE} eps={eps} />
 
         <p className={styles.insight}>
           <strong>The trap raises the finish line.</strong> More automation moves the market size

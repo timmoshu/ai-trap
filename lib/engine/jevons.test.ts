@@ -11,6 +11,9 @@ import {
   jevonsOutput,
   jevonsSpending,
   simulateJevons,
+  simulateJevonsTrough,
+  troughFloor,
+  troughCeiling,
 } from './jevons';
 import { alphaNE, alphaCO } from './static';
 
@@ -84,6 +87,45 @@ describe('Jevons output-expansion overlay', () => {
   it('spending rises only when demand is elastic (eps>1), falls when inelastic', () => {
     expect(jevonsSpending(base, 0.6125, 2)).toBeGreaterThan(100);
     expect(jevonsSpending(base, 0.6125, 0.5)).toBeLessThan(100);
+  });
+
+  it('transition trough: starts whole, dips, recovers to the Jevons long-run (pace-proof destination)', () => {
+    const target = alphaNE(base);
+    const eps = 3; // a strong long-run rescue (ceiling well above 100)
+    const path = simulateJevonsTrough(base, target, eps, {
+      automationSpeed: 0.4,
+      demandGrowthSpeed: 0.08, // market much slower than automation -> a real trough
+      periods: 200,
+    });
+    const jobs = path.map((d) => d.jobs);
+    expect(approx(jobs[0], 100)).toBe(true); // before automation: whole
+    const floor = troughFloor(target);
+    const ceiling = troughCeiling(base, target, eps);
+    const min = Math.min(...jobs);
+    expect(min).toBeLessThan(100); // it dips
+    expect(min).toBeGreaterThanOrEqual(floor - 1e-6); // never below the paper's displacement floor
+    expect(min).toBeLessThan(ceiling); // the dip is below the long-run (a real trough)
+    expect(approx(jobs[jobs.length - 1], ceiling, 1e-3)).toBe(true); // recovers to the Jevons long-run
+  });
+
+  it('faster automation (vs the market) makes a deeper trough; same destination', () => {
+    const target = alphaNE(base);
+    const eps = 3;
+    const deep = simulateJevonsTrough(base, target, eps, {
+      automationSpeed: 0.6,
+      demandGrowthSpeed: 0.05,
+      periods: 300,
+    });
+    const shallow = simulateJevonsTrough(base, target, eps, {
+      automationSpeed: 0.15,
+      demandGrowthSpeed: 0.05,
+      periods: 300,
+    });
+    expect(Math.min(...deep.map((d) => d.jobs))).toBeLessThan(
+      Math.min(...shallow.map((d) => d.jobs)),
+    );
+    // same destination regardless of pace
+    expect(approx(deep[deep.length - 1].jobs, shallow[shallow.length - 1].jobs, 1e-2)).toBe(true);
   });
 
   it('simulateJevons ramps from before-automation to the steady overlay at the target', () => {

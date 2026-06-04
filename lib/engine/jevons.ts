@@ -86,3 +86,56 @@ export function simulateJevons(
 /** The Jevons cascade outcome at a fixed automation level — used as the optimum (alphaCO) reference. */
 export const jevonsSteady = (p: Params, alpha: number, eps: number): JevonsPoint =>
   jevonsPointAt(p, alpha, eps, -1);
+
+/* -------------------------------------------------------------------------------------------------
+ * The transition trough (Phase-C "pace" what-if) — BEYOND THE PAPER, and beyond the static Jevons.
+ *
+ * The static overlay assumes the market is already its price-implied size. But the rescue isn't
+ * instant: automation cuts jobs NOW, while the bigger market only arrives as prices fall and new
+ * uses catch on. So we let the market LAG — each period it crawls toward the size today's price
+ * justifies, at its own (slow) speed, while automation ramps at its own (fast) speed. Jobs then
+ * dip into a trough before recovering.
+ *
+ * The trough's FLOOR is the paper's pure-displacement number (1-target)*100 — the market hasn't
+ * grown yet — and its CEILING is the Jevons long-run (jevonsJobs at target). So the same curve
+ * travels from the paper's world to the Jevons world; the speed race decides how deep and how long.
+ * No scarring, no welfare integral: the destination is pace-proof (it always recovers to the Jevons
+ * long-run); only the journey depends on pace.
+ * ------------------------------------------------------------------------------------------------- */
+export interface JevonsTroughConfig {
+  automationSpeed: number; // alpha -> target per period (how fast AI rolls out)
+  demandGrowthSpeed: number; // market -> price-implied size per period (how fast the market grows back)
+  periods: number;
+}
+
+export interface JevonsTroughPoint {
+  t: number;
+  automation: number; // alpha * 100
+  market: number; // realized output index (100 = before); lags its price-implied target
+  jobs: number; // (1-alpha) * market — dips into the trough, then recovers
+}
+
+/** Simulate the lagging-market transition. Jobs = (1-alpha)*market; market chases the size today's price justifies. */
+export function simulateJevonsTrough(
+  p: Params,
+  target: number,
+  eps: number,
+  cfg: JevonsTroughConfig,
+): JevonsTroughPoint[] {
+  let alpha = 0;
+  let market = 100; // starts at the pre-automation size — the rescue has not happened yet
+  const pts: JevonsTroughPoint[] = [];
+  for (let t = 0; t < cfg.periods; t++) {
+    pts.push({ t, automation: alpha * 100, market, jobs: (1 - alpha) * market });
+    // the market can only chase the size that TODAY's (already-fallen) price justifies
+    const targetMarket = Math.pow(priceRatio(p, alpha), -eps) * 100;
+    alpha += cfg.automationSpeed * (target - alpha);
+    market += cfg.demandGrowthSpeed * (targetMarket - market);
+  }
+  return pts;
+}
+
+/** The trough's two reference levels: the paper's displacement floor and the Jevons long-run ceiling. */
+export const troughFloor = (target: number): number => (1 - target) * 100;
+export const troughCeiling = (p: Params, target: number, eps: number): number =>
+  jevonsJobs(p, target, eps);
