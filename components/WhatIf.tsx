@@ -7,7 +7,6 @@ import {
   alphaNE,
   alphaCO,
   jevonsJobs,
-  jevonsOutput,
   jevonsThreshold,
   simulateJevons,
 } from '@/lib/engine';
@@ -19,14 +18,20 @@ import styles from './WhatIf.module.css';
 
 const JevonsCharts = dynamic(() => import('./JevonsCharts'), { ssr: false });
 
-/** Plain-language reading of the price-elasticity (eps): "demand grows +10*eps% per 10% price cut". */
-function describeElasticity(eps: number): string {
-  const g = Math.round(eps * 10);
-  if (eps < 0.05) return "Demand doesn't move — the paper's fixed-output world.";
-  if (eps < 0.7) return `Demand barely grows (+${g}%) — an inelastic staple, like bread or power.`;
-  if (eps < 1.3) return `Demand roughly keeps pace (+${g}%) — total spending holds about steady.`;
-  if (eps < 2.5) return `Demand outgrows the price cut (+${g}%) — an elastic good.`;
-  return `Demand explodes (+${g}%) — like a new cheap technology (computing, lighting, streaming).`;
+/**
+ * The lever is a market size, but its *meaning* is the underlying price-sensitivity of demand
+ * (the contested parameter). This names what kind of good a given market growth implies, so the
+ * dial still reads as a belief about the world, not an arbitrary number.
+ */
+function describeMarket(eps: number): string {
+  if (eps < 0.05)
+    return "That's the paper's fixed-output world — cheaper prices don't grow demand.";
+  if (eps < 0.7)
+    return 'Only an inelastic staple (bread, power) grows this little when it gets cheaper.';
+  if (eps < 1.3) return 'Demand about keeps pace with the price cut — a typical good.';
+  if (eps < 2.5)
+    return 'It takes an elastic good — demand that outgrows its price cut — to grow the market this far.';
+  return 'Only a new, cheap-enough-to-go-mainstream technology (computing, lighting, streaming) grows it this far.';
 }
 
 /**
@@ -36,28 +41,36 @@ function describeElasticity(eps: number): string {
  * much cheaper goods grow the market. The over-automation readout is unchanged — it's the paper's.
  */
 export function WhatIf() {
-  const [eps, setEps] = useState(1);
   const p = DEFAULTS;
   const aNE = alphaNE({ ...p, tau: 0 }); // market automation (the paper's trap, unchanged)
   const aCO = alphaCO(p); // profit-optimum (the paper's, unchanged)
   const gap = aNE - aCO;
+  const pct = (x: number) => Math.round(x * 100);
+
+  // The lever IS the market-size outcome (index, 100 = before automation) — same units as the
+  // Output panel and the break-even — so the dial, the cascade and the verdict all speak one
+  // number. Under the hood it's still the price-elasticity of demand: at this fixed automation
+  // level the price drop is fixed, so a market size maps 1:1 to an elasticity, which we back out
+  // for the cascade and which names what kind of good it implies. Default 175 == old eps = 1.
+  const [market, setMarket] = useState(175);
+  const priceRatio = (p.w - aNE * (p.w - p.c)) / p.w; // ~0.571 — fixed by the paper's automation
+  const eps = market > 100 ? Math.log(market / 100) / Math.log(1 / priceRatio) : 0;
 
   const path = useMemo(() => simulateJevons(p, aNE, eps), [p, aNE, eps]);
   const jobs = jevonsJobs(p, aNE, eps);
   const thrMarket = jevonsThreshold(p, aNE);
   const thrOpt = jevonsThreshold(p, aCO);
-  const creates = jobs >= 100;
-  const pct = (x: number) => Math.round(x * 100);
 
   // The break-even is pure arithmetic of the automation level: jobs = (1-alpha) * market, so
-  // full employment needs the market to grow to 1/(1-alpha). Elasticity only decides whether
-  // cheaper prices actually carry it that far (= the live output index).
+  // full employment needs the market to grow to 1/(1-alpha). The lever only decides whether
+  // cheaper prices carry it that far.
   const autoShare = pct(aNE); // 61 — share of work done by AI
   const humanShare = pct(1 - aNE); // 39 — share still done by people
   const breakevenOut = Math.round(100 / (1 - aNE)); // 258 — market size that rehires everyone
   const breakevenMult = (1 / (1 - aNE)).toFixed(1); // 2.6×
   const optMult = (1 / (1 - aCO)).toFixed(1); // 1.5× — far lower bar at the optimum
-  const outputNow = Math.round(jevonsOutput(p, aNE, eps)); // where cheaper prices carry the market
+  const outputNow = Math.round(market); // the lever value == where cheaper prices carry the market
+  const creates = outputNow >= breakevenOut;
   const jobsGap = Math.abs(Math.round(jobs) - 100);
 
   return (
@@ -106,18 +119,19 @@ export function WhatIf() {
         </div>
 
         <Slider
-          id="whatif-eps"
-          label="Demand growth when AI cuts the price 10%"
+          id="whatif-market"
+          label="How big does the market grow? (100 = today)"
           symbol=""
-          value={eps}
-          min={0}
-          max={4}
-          step={0.1}
-          onChange={setEps}
-          format={(v) => `+${Math.round(v * 10)}%`}
-          citation="How much the market grows for every 10% automation knocks off the price. (Economists call this the price-elasticity of demand.)"
+          value={market}
+          min={100}
+          max={500}
+          step={5}
+          onChange={setMarket}
+          format={(v) => `${Math.round(v)}`}
+          hint={`break-even ${breakevenOut}`}
+          citation={`How much bigger the market gets as cheaper prices pull in demand. Past the ${breakevenOut} break-even, automation adds jobs; below it, jobs fall. (Set by how price-sensitive demand is.)`}
         />
-        <p className={styles.translate}>{describeElasticity(eps)}</p>
+        <p className={styles.translate}>{describeMarket(eps)}</p>
 
         <div className={`${styles.verdict} ${creates ? styles.creates : styles.destroys}`}>
           <span className={styles.verdictLead}>
