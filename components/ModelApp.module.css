@@ -8,8 +8,16 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--s3) 0 var(--s4);
+  gap: var(--s4);
+  padding: var(--s3) 0;
   border-bottom: 1px solid var(--border);
+}
+.brandWrap {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px var(--s3);
+  min-width: 0;
 }
 .brand {
   font-weight: 700;
@@ -43,18 +51,17 @@
   border-color: var(--accent);
 }
 
-.attribution {
-  font-size: 13.5px;
+.brandSub {
+  font-size: 12.5px;
   color: var(--ink-2);
-  margin: var(--s6) 0 var(--s3);
 }
-.attribution a {
+.brandSub a {
   color: var(--accent);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: border-color var(--motion-fast) var(--ease);
 }
-.attribution a:hover {
+.brandSub a:hover {
   border-bottom-color: var(--accent);
 }
 .frame {
@@ -63,7 +70,7 @@
   line-height: 1.18;
   color: var(--ink);
   max-width: none;
-  margin: 0 0 var(--s3);
+  margin: var(--s5) 0 var(--s3);
   font-weight: 500;
   letter-spacing: -0.015em;
 }
@@ -347,15 +354,14 @@
   .app {
     padding: var(--s3) var(--s3) 88px;
   }
-  /* compact hero so the dashboard is visible without a long scroll */
-  .attribution {
-    font-size: 12px;
-    margin: var(--s4) 0 var(--s2);
+  /* compact hero: drop the paper-citation subtitle on phones (it lives in the footer) */
+  .brandSub {
+    display: none;
   }
   .frame {
     font-size: 21px;
     line-height: 1.2;
-    margin-bottom: var(--s2);
+    margin: var(--s4) 0 var(--s2);
   }
   .subline {
     font-size: 13.5px;

@@ -110,9 +110,17 @@ export function ModelApp() {
   return (
     <div className={styles.app}>
       <header className={styles.top}>
-        <Link href="/" className={styles.brand}>
-          The AI Trap
-        </Link>
+        <div className={styles.brandWrap}>
+          <Link href="/" className={styles.brand}>
+            The AI Trap
+          </Link>
+          <span className={styles.brandSub}>
+            interactive model of{' '}
+            <a href="https://arxiv.org/abs/2603.20617" target="_blank" rel="noopener noreferrer">
+              “The AI Layoff Trap” — Falk &amp; Tsoukalas ↗
+            </a>
+          </span>
+        </div>
         <nav className={styles.nav}>
           <Link href="/method">Method</Link>
           <Link href="/limitations">Limitations</Link>
@@ -123,16 +131,10 @@ export function ModelApp() {
       </header>
 
       <div>
-        <p className={`${styles.attribution} reveal`} style={{ animationDelay: '40ms' }}>
-          An interactive model of the research paper{' '}
-          <a href="https://arxiv.org/abs/2603.20617" target="_blank" rel="noopener noreferrer">
-            “The AI Layoff Trap” — Falk &amp; Tsoukalas, 2026 ↗
-          </a>
-        </p>
-        <h1 className={`${styles.frame} reveal`} style={{ animationDelay: '120ms' }}>
+        <h1 className={`${styles.frame} reveal`} style={{ animationDelay: '80ms' }}>
           Firms automate past the point of maximum <em>profit</em>.
         </h1>
-        <p className={`${styles.subline} reveal`} style={{ animationDelay: '200ms' }}>
+        <p className={`${styles.subline} reveal`} style={{ animationDelay: '160ms' }}>
           In this model, each layoff shrinks the demand <em>every</em> firm sells into — but each
           firm bears only a fraction of that loss. So competing firms over-automate, and where wages
           are sticky, the more competitors there are, the worse they overshoot. See how it plays
