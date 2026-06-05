@@ -13,10 +13,10 @@ const AXIS = '#6e6e66';
 
 /**
  * The share race over time (beyond the paper) — one first mover vs. the field, each firm's profit
- * indexed to before-automation = 100 (the dashed baseline). The first mover (ink) spikes into a
- * windfall while it is the sole automator, then drifts down as rivals catch up; the field (red) is
- * undercut and dips, recovering only partway. Both converge BELOW 100 — the industry ends worse than
- * if no one had automated. Engine: simulatePricingRace in lib/engine/pricing.ts.
+ * indexed to before-automation = 100 (the dashed baseline). Everyone starts whole at 100; as the first
+ * mover (ink) ramps automation it builds a windfall while customers migrate to it, then drifts down as
+ * the field (red) catches up. Both settle BELOW 100 — the industry ends worse than if no one had
+ * automated. Engine: simulatePricingRace in lib/engine/pricing.ts.
  */
 export function PricingRaceChart({ data }: { data: PricingRacePoint[] }) {
   const el = useRef<HTMLDivElement | null>(null);

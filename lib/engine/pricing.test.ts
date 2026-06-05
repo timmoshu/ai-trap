@@ -215,10 +215,12 @@ describe('Check 6 — the headline findings (page-facing summaries, default inpu
     expect(profitIndex(base, alphaCO(base))).toBeGreaterThan(profitIndex(base, alphaNE(base)));
   });
 
-  it('Finding #3 (Q2): the first mover banks a windfall, then the whole industry settles below 100; the holdout is crushed', () => {
+  it('Finding #3 (Q2): everyone starts at 100, the first mover banks a windfall, then all settle below 100; the holdout is crushed', () => {
     const race = simulatePricingRace(base, 2);
     const peakT = race.path.reduce((bi, d, i, a) => (d.leader > a[bi].leader ? i : bi), 0);
-    expect(peakT).toBeGreaterThan(0); // the windfall BUILDS as customers migrate — it does NOT spike in period 1
+    expect(approx(race.path[0].leader, 100, 1e-9)).toBe(true); // t=0: nobody has automated yet — all at the baseline
+    expect(approx(race.path[0].follower, 100, 1e-9)).toBe(true);
+    expect(peakT).toBeGreaterThan(0); // the windfall BUILDS as the mover ramps and customers migrate
     expect(race.peakLeader).toBeGreaterThan(race.settle + 5); // a real windfall above the eventual level
     expect(race.settle).toBeLessThan(100); // everyone ends below where they started
     expect(race.laggard).toBeLessThan(race.settle); // the firm that never moves is worse than the pack
