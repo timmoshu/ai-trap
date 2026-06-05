@@ -308,9 +308,9 @@ export const profitBreakevenBeta = (p: Params, betaHi = 12): number | null => {
 
 export interface PricingRacePoint {
   t: number;
-  /** the first mover's profit, indexed to before-automation = 100. Spikes during its lead, then drifts down. */
+  /** the first mover's profit, indexed to before-automation = 100. Builds a windfall as customers migrate, then drifts down. */
   leader: number;
-  /** a follower's profit, indexed to 100. Dips as it is undercut, recovers partway as it catches up. */
+  /** a follower's profit, indexed to 100. Dips as customers leave for the cheaper mover, recovers as it catches up. */
   follower: number;
 }
 
@@ -325,33 +325,42 @@ export interface PricingRaceResult {
 }
 
 /**
- * Simulate the share race over time: one first mover jumps to the equilibrium automation a* at t=0;
- * its N-1 rivals (the field) ramp toward a* at `adjustmentSpeed`. Returns the leader's and a
- * follower's profit (each indexed to before-automation = 100), plus the windfall peak, the
- * below-baseline settle point, and the holdout's fate. Visualizes Q2: the mover banks a big early
- * windfall, then the whole industry drifts below where it started; the firm that waits is crushed.
+ * Simulate the share race over time. The first mover has already transformed (it sits at the
+ * equilibrium automation a*); its N-1 rivals (the field) catch up in automation at `catchupSpeed`.
+ *
+ * The fix that matters: customers do NOT teleport. Market share starts at parity (1/N for everyone)
+ * and MIGRATES toward the share today's cost gap implies, at `switchSpeed` per period — so the first
+ * mover's windfall BUILDS over time instead of spiking in period 1. `switchSpeed` (how fast customers
+ * move) is a distinct axis from `beta` (how FAR they move — the eventual share a cost edge wins): beta
+ * sets the windfall's height, switchSpeed sets how fast it gets there. switchSpeed never changes the
+ * equilibrium `settle` — only the path. Visualizes Q2: a windfall that builds, then the whole industry
+ * drifts below where it started; the holdout is crushed.
  */
 export const simulatePricingRace = (
   p: Params,
   beta: number,
-  adjustmentSpeed = 0.11,
+  switchSpeed = 0.15,
+  catchupSpeed = 0.11,
   periods = 60,
 ): PricingRaceResult => {
   const aStar = symmetricNash(p, beta);
   const path: PricingRacePoint[] = [];
-  let field = 0;
+  const cost = (a: number) => p.L * (a * p.c + (1 - a) * p.w) + (p.k / 2) * p.L * a * a;
+  const toIndex = (profit: number) => 100 + ((profit - profitPerFirm(p, 0)) * 100) / (p.w * p.L);
+  let field = 0; // rivals' automation, catching up to a*
+  let leaderShare = 1 / p.N; // customers start at parity and migrate — they do not teleport
   let peakLeader = -Infinity;
   for (let t = 0; t < periods; t++) {
-    const leaderShare = logitShare(marginalCost(p, aStar), marginalCost(p, field), p.N - 1, beta);
     const D = p.A + p.lambda * p.w * p.L * (p.N - (1 - p.eta) * (aStar + (p.N - 1) * field));
-    const cost = (a: number) => p.L * (a * p.c + (1 - a) * p.w) + (p.k / 2) * p.L * a * a;
     const leaderProfit = leaderShare * D - cost(aStar);
     const followerProfit = ((1 - leaderShare) / (p.N - 1)) * D - cost(field);
-    const toIndex = (profit: number) => 100 + ((profit - profitPerFirm(p, 0)) * 100) / (p.w * p.L);
     const leader = toIndex(leaderProfit);
     if (leader > peakLeader) peakLeader = leader;
     path.push({ t, leader, follower: toIndex(followerProfit) });
-    field += adjustmentSpeed * (aStar - field);
+    // customers migrate toward the share today's cost gap implies; rivals catch up in automation
+    const targetShare = logitShare(marginalCost(p, aStar), marginalCost(p, field), p.N - 1, beta);
+    leaderShare += switchSpeed * (targetShare - leaderShare);
+    field += catchupSpeed * (aStar - field);
   }
   return {
     path,

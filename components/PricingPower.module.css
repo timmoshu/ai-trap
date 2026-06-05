@@ -1,3 +1,27 @@
+.dialsIntro {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+  margin: var(--s2) 0 var(--s3);
+}
+.dialsIntro strong {
+  color: var(--ink);
+}
+.dials {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s2);
+  border-left: 3px solid var(--accent);
+  padding-left: var(--s4);
+  margin-bottom: var(--s4);
+}
+.dials > p {
+  margin-bottom: var(--s3);
+}
+.dials > p:last-child {
+  margin-bottom: 0;
+}
+
 .stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

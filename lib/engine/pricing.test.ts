@@ -217,9 +217,19 @@ describe('Check 6 — the headline findings (page-facing summaries, default inpu
 
   it('Finding #3 (Q2): the first mover banks a windfall, then the whole industry settles below 100; the holdout is crushed', () => {
     const race = simulatePricingRace(base, 2);
-    expect(race.peakLeader).toBeGreaterThan(150); // a large early windfall (well above the 100 baseline)
+    const peakT = race.path.reduce((bi, d, i, a) => (d.leader > a[bi].leader ? i : bi), 0);
+    expect(peakT).toBeGreaterThan(0); // the windfall BUILDS as customers migrate — it does NOT spike in period 1
+    expect(race.peakLeader).toBeGreaterThan(race.settle + 5); // a real windfall above the eventual level
     expect(race.settle).toBeLessThan(100); // everyone ends below where they started
     expect(race.laggard).toBeLessThan(race.settle); // the firm that never moves is worse than the pack
-    expect(race.path[0].leader).toBeGreaterThan(race.path[race.path.length - 1].leader); // mover drifts down
+  });
+
+  it('customer-switching SPEED shapes the windfall but never the equilibrium (distinct from beta)', () => {
+    const slow = simulatePricingRace(base, 2, 0.04); // sticky customers — migrate slowly
+    const fast = simulatePricingRace(base, 2, 0.8); // customers switch quickly
+    expect(fast.peakLeader).toBeGreaterThan(slow.peakLeader); // faster switching => bigger windfall
+    expect(approx(fast.settle, slow.settle, 1e-9)).toBe(true); // ...but the settle (equilibrium) is unchanged
+    // customers start at parity, so nobody is undercut at t=0 (no instant teleport of share)
+    expect(approx(slow.path[0].follower, fast.path[0].follower, 1e-9)).toBe(true);
   });
 });

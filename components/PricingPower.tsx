@@ -21,16 +21,26 @@ import pp from './PricingPower.module.css';
 
 const PricingRaceChart = dynamic(() => import('./PricingRaceChart'), { ssr: false });
 
-/** Names what kind of market a given switching ease implies, so the dial reads as a belief, not a number. */
-function describeSwitching(beta: number): string {
+/** HOW FAR — names how much price sways customers (the eventual share a cost edge wins). Magnitude, not speed. */
+function describeReach(beta: number): string {
   if (beta < 0.05)
-    return "That's the paper's world — customers are locked in, so cutting costs wins you no extra sales.";
-  if (beta < 0.8) return 'Customers barely switch — a sticky market (your bank, your insurer).';
+    return "The paper's world — price doesn't sway customers at all, so cutting costs wins no extra sales.";
+  if (beta < 0.8)
+    return 'Price barely sways customers — most stay put even when a rival is cheaper.';
   if (beta < 1.8)
-    return 'Cut your price and customers move to you — a normally competitive market.';
+    return 'A cheaper price pulls a meaningful slice of the market your way — a normally competitive market.';
   if (beta < 3)
-    return 'Customers chase the cheapest provider hard — a price-driven commodity market.';
-  return 'The cheapest firm takes almost everything — a winner-take-most market.';
+    return 'Customers strongly favor the cheapest firm — a price-driven commodity market.';
+  return 'The cheapest firm ends up with almost the whole market — winner-take-most.';
+}
+
+/** HOW FAST — names how quickly customers migrate (the pace of the race). Speed, not magnitude. */
+function describePace(switchSpeed: number): string {
+  if (switchSpeed < 0.06)
+    return 'Customers are slow to move — habits, contracts, inertia. The first mover barely cashes in before rivals catch up.';
+  if (switchSpeed < 0.2) return 'Customers drift over gradually — a slow migration.';
+  if (switchSpeed < 0.45) return 'Customers switch fairly quickly once a rival is cheaper.';
+  return 'Customers jump to the cheapest firm almost at once.';
 }
 
 /**
@@ -48,18 +58,23 @@ export function PricingPower() {
   const aCO = alphaCO(p); // the profit-optimum, unchanged by pricing power
   const pct = (x: number) => Math.round(x * 100);
 
-  // The dial is "ease of switching" on a 0–100 feel; under the hood it is the logit share-response
-  // beta (0 = locked-in = the paper). beta = ease / 20, so the 0–100 slider spans beta 0–5.
-  const [ease, setEase] = useState(30);
-  const beta = ease / 20;
+  // Two SEPARATE customer dials, both on a 0–100 feel:
+  //  - reach (HOW FAR): the logit share-response beta = reach / 20 (0 = locked-in = the paper). Sets the
+  //    equilibrium automation, the profit readout, and the windfall's HEIGHT.
+  //  - pace (HOW FAST): customer-migration speed switchSpeed = pace / 100. Sets only how fast the race
+  //    plays out — the windfall's shape — never the equilibrium.
+  const [reach, setReach] = useState(30);
+  const [pace, setPace] = useState(15);
+  const beta = reach / 20;
+  const switchSpeed = pace / 100;
 
   const aStar = useMemo(() => symmetricNash(p, beta), [p, beta]);
-  const race = useMemo(() => simulatePricingRace(p, beta), [p, beta]);
+  const race = useMemo(() => simulatePricingRace(p, beta, switchSpeed), [p, beta, switchSpeed]);
   const idx = profitIndex(p, aStar);
   const paperIdx = profitIndex(p, aNEpaper); // ~103 — the paper still nets a gain
   const optIdx = profitIndex(p, aCO); // ~106 — the social optimum
   const breakevenBeta = profitBreakevenBeta(p);
-  const breakevenEase = breakevenBeta != null ? Math.round(breakevenBeta * 20) : null;
+  const breakevenReach = breakevenBeta != null ? Math.round(breakevenBeta * 20) : null;
 
   const pays = idx >= 100;
 
@@ -111,20 +126,42 @@ export function PricingPower() {
           </div>
         </div>
 
-        <Slider
-          id="pp-switch"
-          label="How easily do customers switch to the cheaper firm?"
-          symbol=""
-          value={ease}
-          min={0}
-          max={100}
-          step={2}
-          onChange={setEase}
-          format={(v) => (v <= 1 ? 'locked in' : `${Math.round(v)}`)}
-          hint={breakevenEase != null ? `AI stops paying past ${breakevenEase}` : ''}
-          citation="How readily customers move to whoever automates first and undercuts. 0 = locked in (the paper's world); higher = the cheapest firm takes more of the market. Illustrative — there is no empirical value for this dial."
-        />
-        <p className={styles.translate}>{describeSwitching(beta)}</p>
+        <p className={pp.dialsIntro}>
+          Two <em>different</em> things drive the race — keep them apart: <strong>how far</strong>{' '}
+          customers will move (the size of the prize) and <strong>how fast</strong> they move (the
+          pace). Only the pace reshapes the race below; the final tally is set by how far.
+        </p>
+        <div className={pp.dials}>
+          <Slider
+            id="pp-reach"
+            label="① How far do customers move to the cheapest firm?"
+            symbol=""
+            value={reach}
+            min={0}
+            max={100}
+            step={2}
+            onChange={setReach}
+            format={(v) => (v <= 1 ? 'not at all' : `${Math.round(v)}`)}
+            hint={breakevenReach != null ? `AI stops paying past ${breakevenReach}` : ''}
+            citation="How much price sways customers — the share a cost edge eventually wins. 0 = price doesn't move them (the paper's world); higher = the cheapest firm takes more of the market. This is the pricing-power magnitude; it sets the equilibrium. Illustrative — no empirical value."
+          />
+          <p className={styles.translate}>{describeReach(beta)}</p>
+
+          <Slider
+            id="pp-pace"
+            label="② How fast do customers switch?"
+            symbol=""
+            value={pace}
+            min={2}
+            max={100}
+            step={2}
+            onChange={setPace}
+            format={(v) => `${Math.round(v)}`}
+            hint="shapes the race, not the tally"
+            citation="How quickly customers migrate to whoever undercuts. Slow = sticky habits and contracts; fast = they jump almost at once. This changes how the race plays out over time — the windfall's size and timing — but never the final equilibrium."
+          />
+          <p className={styles.translate}>{describePace(switchSpeed)}</p>
+        </div>
 
         <div className={`${styles.verdict} ${pays ? styles.creates : styles.destroys}`}>
           <span className={styles.verdictLead}>
