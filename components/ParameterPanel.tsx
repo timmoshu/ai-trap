@@ -41,6 +41,15 @@ export function ParameterPanel({
     update({ ...DEFAULT_SCENARIO, ...baselineById(id).params, view: scenario.view });
   };
 
+  // The slider tooltip: the parameter's meaning (always), plus — when the active scenario sets this
+  // value away from the paper — that scenario's citation for the value it's currently showing.
+  const citeFor = (m: (typeof PARAM_META)[number]): string => {
+    const override = active?.cites?.[m.key];
+    if (!active || !override) return m.citation;
+    const val = (active.params as Record<string, number>)[m.key];
+    return `${m.citation}  ·  In the “${active.name}” scenario, ${m.symbol} = ${val}: ${override}`;
+  };
+
   return (
     <section className={styles.panel} aria-label="Model parameters">
       <div className={styles.titleRow}>
@@ -105,7 +114,7 @@ export function ParameterPanel({
             step={m.step}
             onChange={(v) => update({ [m.key]: v } as Partial<Scenario>)}
             format={fmt[m.key]}
-            citation={m.citation}
+            citation={citeFor(m)}
             hint={hint}
             illustrative={m.illustrative}
             disabled={etaPinned}

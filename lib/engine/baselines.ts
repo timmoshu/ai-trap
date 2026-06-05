@@ -48,6 +48,18 @@ export const BASELINES: Baseline[] = [
     },
   },
   {
+    id: 'cheaper-ai',
+    name: 'Cheaper AI',
+    blurb:
+      'Central estimates, but automation is far cheaper per task than the paper assumes — so firms automate more.',
+    params: { lambda: 0.6, eta: 0.5, c: 0.15 },
+    cites: {
+      lambda: 'Central marginal propensity to consume (Jappelli & Pistaferri 2014).',
+      eta: 'Partial recovery of lost spending (Davis & von Wachter 2011).',
+      c: 'Illustrative of much cheaper automation — per-task AI/inference costs have fallen by orders of magnitude. Not a precise estimate; the hardest value to pin down.',
+    },
+  },
+  {
     id: 'sticky',
     name: 'Sticky labor market',
     blurb: 'Liquidity-constrained workers and slow reemployment — the deepest-externality case.',
