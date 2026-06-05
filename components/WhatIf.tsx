@@ -3,7 +3,9 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import {
-  DEFAULTS,
+  whatifParams,
+  baselineById,
+  WHATIF_BASELINE_ID,
   alphaNE,
   alphaCO,
   jevonsJobs,
@@ -40,12 +42,13 @@ function describeMarket(eps: number): string {
  * The Phase-C "what-if" — BEYOND THE PAPER. A mirror of the main dashboard (same readout + cascade),
  * but the cascade runs the Jevons / output-expansion overlay (lib/engine/jevons.ts, verified in
  * gate0-jevons-extension.md) instead of the paper's fixed-output rules, with one added lever: how
- * much cheaper goods grow the market. The over-automation readout is unchanged — it's the paper's.
+ * much cheaper goods grow the market. It re-baselines to the what-if scenario (lib/engine/baselines).
  */
 export function WhatIf() {
-  const p = DEFAULTS;
-  const aNE = alphaNE({ ...p, tau: 0 }); // market automation (the paper's trap, unchanged)
-  const aCO = alphaCO(p); // profit-optimum (the paper's, unchanged)
+  const p = whatifParams(); // the cited what-if baseline (not the paper's figure values)
+  const basis = baselineById(WHATIF_BASELINE_ID);
+  const aNE = alphaNE({ ...p, tau: 0 }); // market automation at this scenario
+  const aCO = alphaCO(p); // profit-optimum at this scenario
   const gap = aNE - aCO;
   const pct = (x: number) => Math.round(x * 100);
 
@@ -94,10 +97,15 @@ export function WhatIf() {
 
         <div className={styles.banner}>
           <strong>Beyond the paper.</strong> This is the same dashboard, with one assumption
-          relaxed: output can now grow. The over-automation on the left is still the paper&apos;s
-          result — but the cascade below runs the Jevons / Jones counter-argument. It is an{' '}
+          relaxed: output can now grow. The over-automation on the left is the model&apos;s result
+          at the <strong>{basis.name}</strong> scenario — but the cascade below runs the Jevons /
+          Jones counter-argument. It is an{' '}
           <em>illustrative extension, not the authors&apos; result</em>.
         </div>
+        <p className={styles.basisNote}>
+          Numbers use the <strong>{basis.name}</strong> scenario — a cited alternative to the
+          paper&apos;s illustrative figure values. <Link href="/">Change it on the model →</Link>
+        </p>
 
         <h1 className={styles.h1}>What if cheaper goods grow the market?</h1>
         <p className={styles.lede}>

@@ -49,6 +49,20 @@
   margin: var(--s2) 0 0;
 }
 
+.basisNote {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-3);
+  margin: calc(-1 * var(--s4)) 0 var(--s5);
+}
+.basisNote strong {
+  color: var(--ink-2);
+}
+.basisNote a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
 .verdict {
   display: flex;
   flex-direction: column;

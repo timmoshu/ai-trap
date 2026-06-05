@@ -3,7 +3,9 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import {
-  DEFAULTS,
+  whatifParams,
+  baselineById,
+  WHATIF_BASELINE_ID,
   alphaNE,
   alphaCO,
   symmetricNash,
@@ -53,8 +55,9 @@ function describePace(switchSpeed: number): string {
  * _bmad-output/planning-artifacts/gate0-pricing-power-extension.md.
  */
 export function PricingPower() {
-  const p = DEFAULTS;
-  const aNEpaper = alphaNE({ ...p, tau: 0 }); // the paper's trap (no share competition), unchanged
+  const p = whatifParams(); // the cited what-if baseline (not the paper's figure values)
+  const basis = baselineById(WHATIF_BASELINE_ID);
+  const aNoWar = alphaNE({ ...p, tau: 0 }); // automation at this scenario WITHOUT the share war
   const aCO = alphaCO(p); // the profit-optimum, unchanged by pricing power
   const pct = (x: number) => Math.round(x * 100);
 
@@ -63,7 +66,7 @@ export function PricingPower() {
   //    equilibrium automation, the profit readout, and the windfall's HEIGHT.
   //  - pace (HOW FAST): customer-migration speed switchSpeed = pace / 100. Sets only how fast the race
   //    plays out — the windfall's shape — never the equilibrium.
-  const [reach, setReach] = useState(30);
+  const [reach, setReach] = useState(20);
   const [pace, setPace] = useState(15);
   const beta = reach / 20;
   const switchSpeed = pace / 100;
@@ -71,8 +74,8 @@ export function PricingPower() {
   const aStar = useMemo(() => symmetricNash(p, beta), [p, beta]);
   const race = useMemo(() => simulatePricingRace(p, beta, switchSpeed), [p, beta, switchSpeed]);
   const idx = profitIndex(p, aStar);
-  const paperIdx = profitIndex(p, aNEpaper); // ~103 — the paper still nets a gain
-  const optIdx = profitIndex(p, aCO); // ~106 — the social optimum
+  const noWarIdx = profitIndex(p, aNoWar); // profit at this scenario WITHOUT the share war (still a gain)
+  const optIdx = profitIndex(p, aCO); // the social optimum
   const breakevenBeta = profitBreakevenBeta(p);
   const breakevenReach = breakevenBeta != null ? Math.round(breakevenBeta * 20) : null;
 
@@ -102,6 +105,10 @@ export function PricingPower() {
           standard technology-adoption game does (Fudenberg &amp; Tirole, 1985). It is an{' '}
           <em>illustrative extension, not the authors&apos; result</em>.
         </div>
+        <p className={styles.basisNote}>
+          Numbers use the <strong>{basis.name}</strong> scenario — a cited alternative to the
+          paper&apos;s illustrative figure values. <Link href="/">Change it on the model →</Link>
+        </p>
 
         <h1 className={styles.h1}>What if firms could steal market share?</h1>
         <p className={styles.lede}>
@@ -116,8 +123,8 @@ export function PricingPower() {
             <span className={`${model.val} tabular`}>{pct(aStar)}%</span>
           </div>
           <div className={model.metric}>
-            <span className={model.mLabel}>Paper&apos;s trap</span>
-            <span className={`${model.val} tabular`}>{pct(aNEpaper)}%</span>
+            <span className={model.mLabel}>No share war</span>
+            <span className={`${model.val} tabular`}>{pct(aNoWar)}%</span>
           </div>
           <div className={`${model.gap} ${pays ? '' : model.trap}`}>
             <span className={model.gapLabel}>Industry profit</span>
@@ -175,7 +182,7 @@ export function PricingPower() {
           </span>
           <span className={styles.verdictTag}>
             {pays
-              ? `Even with the share race, the industry still nets a gain (the paper alone gives ${Math.round(paperIdx)}).`
+              ? `Even with the share race, the industry still nets a gain (without it, ${Math.round(noWarIdx)}).`
               : `Below the 100 it started at — the race for share leaves the whole industry LESS profitable than if AI had never arrived.`}
           </span>
         </div>
