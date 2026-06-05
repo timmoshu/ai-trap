@@ -11,6 +11,7 @@ import {
   simulateJevons,
 } from '@/lib/engine';
 import { Slider } from './Slider';
+import { WhatIfTabs } from './WhatIfTabs';
 import { Footer } from './Footer';
 import prose from './Prose.module.css';
 import model from './ModelApp.module.css';
@@ -84,10 +85,13 @@ export function WhatIf() {
           <Link href="/">Model</Link>
           <Link href="/method">Method</Link>
           <Link href="/limitations">Limitations</Link>
+          <Link href="/pricing-power">Pricing power?</Link>
         </nav>
       </header>
 
       <div className={styles.body}>
+        <WhatIfTabs active="jevons" />
+
         <div className={styles.banner}>
           <strong>Beyond the paper.</strong> This is the same dashboard, with one assumption
           relaxed: output can now grow. The over-automation on the left is still the paper&apos;s

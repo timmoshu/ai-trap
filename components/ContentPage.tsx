@@ -22,6 +22,7 @@ export function ContentPage({
           <Link href="/method">Method</Link>
           <Link href="/limitations">Limitations</Link>
           <Link href="/what-if">What if?</Link>
+          <Link href="/pricing-power">Pricing power?</Link>
         </nav>
       </header>
       <article className={styles.prose}>
